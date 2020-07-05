@@ -22,6 +22,11 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
   FirebaseUser stateUser;
   Meal activeMeal;
   List<Meal> allOrders = new List();
+  List<String> stateMsg =[
+    'בהמתנה',
+    'בהכנה',
+    'הזמנה מוכנה'
+  ];
 
   @override
   void initState() {
@@ -94,28 +99,20 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
                 completed: order.data['completed'],
                 quantity: order.data['quantity'],
                 userEmail: order.data['user_email']);
-            if (order.data['status'] == 1) {
+            if (order.data['status'] <=2) {
               return (Container(
                 child: Card(
                   elevation: 3,
                   child: ListTile(
                       isThreeLine: true,
-//                    leading: Text('${order.data['user_email']}'),
-                      title: Text('${activeMeal.userEmail}'),
-                      subtitle: Text('${allOrders[0].mealType['corn']}'),
+                      title: Text('${activeMeal.orderDate.day}/${activeMeal.orderDate.month}/${activeMeal.orderDate.year}'),
+                      subtitle: Text('${stateMsg[activeMeal.status]}'),
                       trailing: orderStatus(
                         status: activeMeal.status,
                       )),
                 ),
               ));
-            } else if (order.data['status'] == 2)
-              return (Container(
-                color: Colors.yellow,
-              ));
-            else if (order.data['status'] == 3)
-              return (Container(
-                color: Colors.green,
-              ));
+            }
             else {
               return Container(
                 color: Colors.white,
@@ -140,11 +137,14 @@ class orderStatus extends StatelessWidget {
     Colors.green,
   ];
 
+
+
   @override
   Widget build(BuildContext context) {
     return Icon(
       Icons.brightness_1,
       color: statColor[status],
+      size: 50,
     );
   }
 }

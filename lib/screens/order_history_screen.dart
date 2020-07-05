@@ -15,7 +15,7 @@ class OrederHistory extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'New Orderkjhgfkhg',
+            'order history ',
             style: TextStyle(
               fontSize: 40,
               color: Colors.white,
