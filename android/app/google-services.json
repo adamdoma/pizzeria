@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "520774018594",
+    "firebase_url": "https://pizza-bkfar-fe2f2.firebaseio.com",
+    "project_id": "pizza-bkfar-fe2f2",
+    "storage_bucket": "pizza-bkfar-fe2f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520774018594:android:f0a5d9c0f19791d957cc7b",
+        "android_client_info": {
+          "package_name": "com.example.pizzeria"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520774018594-35kjsv6l5t6d714hif0oluon3rlv8kdg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJJxYLjwYnQTnBGM64AElcscvJI6x4KHM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520774018594-35kjsv6l5t6d714hif0oluon3rlv8kdg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
