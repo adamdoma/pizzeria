@@ -78,6 +78,7 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
 
   @override
   Widget build(BuildContext context) {
+    //TODO לתקן :אם הבסיס נתיונים יגדל משמעותית צריך לחכות יותר ואז פ ה יספיק לטעון
     setUser();
     return StreamBuilder<QuerySnapshot>(
       stream: widget.fireStore.collection('orders').snapshots(),
@@ -121,7 +122,10 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
             }
           }
         }
-        return null;
+        return Container(
+          color: Colors.white,
+          child: Center(child: Text('אין הזמנות פעילות')),
+        );;
       },
     );
   }

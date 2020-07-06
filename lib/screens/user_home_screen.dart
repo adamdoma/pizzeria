@@ -120,8 +120,8 @@ class _UserHomeScreenState extends State<UserHomeScreen>
             Expanded(
               flex: 3,
               child: Container(
-                padding: EdgeInsets.all(10),
-                child: myList[tabIndex],
+                  padding: EdgeInsets.all(10),
+                  child: myList[tabIndex]
               ),
             ),
             TabBar(

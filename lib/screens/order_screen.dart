@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../consts.dart';
 
 class NewOrder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.blueAccent,
         borderRadius: BorderRadius.only(
@@ -13,10 +13,23 @@ class NewOrder extends StatelessWidget {
         ),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text('כמות (מגש)'),
-          TextField(),
+          Text('הזמנה חדשה',style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+            letterSpacing: 3,
+          ),
+          ),
+          Slider(
+            value: 5,
+            onChanged: (val){
+              val +=1;
+            },
+            min: 0.5,
+            max: 5,
+            divisions: 5,
+          ),
         ],
       ),
     );
