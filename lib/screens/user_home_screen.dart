@@ -118,7 +118,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
               ),
             ),
             Expanded(
-              flex: 3,
+              flex: 4,
               child: Container(
                   padding: EdgeInsets.all(10),
                   child: myList[tabIndex]

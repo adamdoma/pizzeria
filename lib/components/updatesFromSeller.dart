@@ -40,7 +40,6 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
 
   void setMeal() async {
     ordersCollection = widget.fireStore;
-
     final orderCollection =
         await ordersCollection.collection('orders').getDocuments();
 
@@ -148,7 +147,7 @@ class orderStatus extends StatelessWidget {
     return Icon(
       Icons.brightness_1,
       color: statColor[status],
-      size: 50,
+      size: 40,
     );
   }
 }

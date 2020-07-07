@@ -19,7 +19,6 @@ class _OrederHistoryState extends State<OrederHistory> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.delayed(Duration(seconds: 3));
     UserOrderHistory();
   }
 
@@ -42,7 +41,7 @@ class _OrederHistoryState extends State<OrederHistory> {
     }
     else
     return Container(
-      padding: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.only(top: 20,left: 10,right: 10),
       decoration: BoxDecoration(
         color: Colors.blueAccent,
         borderRadius: BorderRadius.only(
@@ -56,11 +55,13 @@ class _OrederHistoryState extends State<OrederHistory> {
             itemCount:mealList.length ,
             itemBuilder: (context,index){
               return Card(
+                color: Colors.white70,
                 elevation: 5,
                 child: ListTile(
+                  leading: Icon(Icons.account_circle),
                   subtitle: Text('Date: ${mealList[index].orderDate.day}/${mealList[index].orderDate.month}/${mealList[index].orderDate.year}'),
                   title: Text('${mealList[index].userEmail}'),
-                  trailing: Text('20\$'),
+                  trailing: Text('20\u20AA'),
                 )
               );
             },
