@@ -1,12 +1,11 @@
 import 'dart:ffi';
 
-
 class Meal {
   String userEmail;
   Map<String, dynamic> mealType;
   bool completed;
   DateTime orderDate;
-  int quantity;
+  double quantity;
   int status;
 
   Meal({

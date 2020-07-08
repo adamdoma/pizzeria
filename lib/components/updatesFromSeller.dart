@@ -22,11 +22,7 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
   FirebaseUser stateUser;
   Meal activeMeal;
   List<Meal> allOrders = new List();
-  List<String> stateMsg =[
-    'בהמתנה',
-    'בהכנה',
-    'הזמנה מוכנה'
-  ];
+  List<String> stateMsg = ['בהמתנה', 'בהכנה', 'הזמנה מוכנה'];
 
   @override
   void initState() {
@@ -52,7 +48,7 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
       {bool completed,
       Map mealType,
       Timestamp orderDate,
-      int quantity,
+      double quantity,
       int status,
       String userEmail}) {
     DateTime tempDate = orderDate.toDate();
@@ -89,8 +85,11 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
             ),
           );
         }
-        final orders = snapshot.data.documents;
+        var orders = snapshot.data.documents;
+        int i = 0;
         for (var order in orders) {
+          print(order.documentID);
+          i++;
           if (stateUser.email == order.data['user_email']) {
             getActiveMeal(
                 status: order.data['status'],
@@ -99,21 +98,21 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
                 completed: order.data['completed'],
                 quantity: order.data['quantity'],
                 userEmail: order.data['user_email']);
-            if (order.data['status'] <=2) {
+            if (order.data['status'] <= 2) {
               return (Container(
                 child: Card(
                   elevation: 3,
                   child: ListTile(
                       isThreeLine: true,
-                      title: Text('${activeMeal.orderDate.day}/${activeMeal.orderDate.month}/${activeMeal.orderDate.year}'),
+                      title: Text(
+                          '${activeMeal.orderDate.day}/${activeMeal.orderDate.month}/${activeMeal.orderDate.year}'),
                       subtitle: Text('${stateMsg[activeMeal.status]}'),
                       trailing: orderStatus(
                         status: activeMeal.status,
                       )),
                 ),
               ));
-            }
-            else {
+            } else {
               return Container(
                 color: Colors.white,
                 child: Center(child: Text('אין הזמנות פעילות')),
@@ -124,7 +123,8 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
         return Container(
           color: Colors.white,
           child: Center(child: Text('אין הזמנות פעילות')),
-        );;
+        );
+        ;
       },
     );
   }
@@ -139,8 +139,6 @@ class orderStatus extends StatelessWidget {
     Colors.yellow,
     Colors.green,
   ];
-
-
 
   @override
   Widget build(BuildContext context) {
