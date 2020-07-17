@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pizzeria/models/user.dart';
+import '../components/ErrorMSG.dart';
 import '../components/rounded_Button.dart';
 
 class NewOrder extends StatefulWidget {
@@ -20,7 +20,6 @@ class _NewOrderState extends State<NewOrder> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     test();
   }
@@ -34,6 +33,12 @@ class _NewOrderState extends State<NewOrder> {
       });
       addOnsKeyNames = addOns.keys.toList();
     }
+  }
+
+  void clearMap() {
+    addOns.forEach((key, value) {
+      value = false;
+    });
   }
 
   @override
@@ -70,6 +75,7 @@ class _NewOrderState extends State<NewOrder> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               FlatButton(
+                textColor: Colors.white,
                 child: Icon(Icons.remove),
                 onPressed: () {
                   if (count > 0.5) {
@@ -121,34 +127,36 @@ class _NewOrderState extends State<NewOrder> {
               child: GridView.count(
                 crossAxisSpacing: 20,
                 mainAxisSpacing: 20,
-                crossAxisCount: 2,
+                crossAxisCount: 3,
                 children: List.generate(addOnsKeyNames.length, (index) {
                   return Container(
                     padding: EdgeInsets.only(top: 30),
-                    alignment: Alignment.center,
+//                    alignment: Alignment.centerLeft,
                     margin:
                         EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
                     decoration: BoxDecoration(
-                      color: Color(0xff57ccba),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(100),
                       border: Border.all(color: Colors.white, width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.deepPurple.withOpacity(0.7),
+                          color: Colors.black12.withOpacity(0.7),
                           spreadRadius: 2,
                           blurRadius: 9,
-                          offset: Offset(0, 8), // changes position of shadow
+                          offset: Offset(10, 20), // changes position of shadow
                         ),
                       ],
                     ),
-                    child: AddOns(
-                      label: addOnsKeyNames[index],
-                      isChecked: addOns[addOnsKeyNames[index]],
-                      toggleCheckBoxState: (bool newVal) {
-                        setState(() {
-                          addOns[addOnsKeyNames[index]] = newVal;
-                        });
-                      },
+                    child: FittedBox(
+                      child: AddOns(
+                        label: addOnsKeyNames[index],
+                        isChecked: addOns[addOnsKeyNames[index]],
+                        toggleCheckBoxState: (bool newVal) {
+                          setState(() {
+                            addOns[addOnsKeyNames[index]] = newVal;
+                          });
+                        },
+                      ),
                     ),
                   );
                 }),
@@ -159,18 +167,54 @@ class _NewOrderState extends State<NewOrder> {
             child: RoundedButton(
               text: 'Order',
               onTape: () {
-                try {
-                  _fireStore.collection('orders').add({
-                    'completed': false,
-                    'meal_type': addOns,
-                    'order_date': Timestamp.now(),
-                    'quantity': count,
-                    'status': 0,
-                    'user_email': stateUser.email
-                  });
-                } catch (e) {
-                  print(e);
-                }
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (_) => AlertDialog(
+                    title: Text(
+                      'אישור הזמנה',
+                      textAlign: TextAlign.end,
+                    ),
+                    elevation: 3,
+                    actions: [
+                      FlatButton(
+                        child: Text(
+                          'כן',
+                          textAlign: TextAlign.start,
+                        ),
+                        onPressed: () {
+                          try {
+                            _fireStore.collection('orders').add({
+                              'completed': false,
+                              'meal_type': addOns,
+                              'order_date': Timestamp.now(),
+                              'quantity': count,
+                              'status': 0,
+                              'user_email': stateUser.email
+                            });
+                          } catch (e) {
+                            ErrorMsg(
+                              msg: e.toString(),
+                            );
+                          }
+                          setState(() {
+                            test();
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                      FlatButton(
+                        child: Text(
+                          'לא',
+                          textAlign: TextAlign.start,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           ),
@@ -191,8 +235,12 @@ class AddOns extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label),
+        Text(
+          label,
+          style: TextStyle(fontSize: 30),
+        ),
         Checkbox(
+
           value: isChecked,
           onChanged: toggleCheckBoxState,
         ),
@@ -200,28 +248,3 @@ class AddOns extends StatelessWidget {
     );
   }
 }
-//
-//Container(
-//decoration: BoxDecoration(
-//color: Colors.white,
-//borderRadius: BorderRadius.all(
-//Radius.circular(15),
-//),
-//),
-//padding: EdgeInsets.all(10),
-//margin: EdgeInsets.only(bottom: 40, top: 10),
-//child: ListView.builder(
-//itemCount: addOnsKeyNames.length,
-//itemBuilder: (context, index) {
-//return AddOns(
-//label: addOnsKeyNames[index],
-//isChecked: addOns[addOnsKeyNames[index]],
-//toggleCheckBoxState: (bool newVal) {
-//setState(() {
-//addOns[addOnsKeyNames[index]] = newVal;
-//});
-//},
-//);
-//},
-//),
-//),
