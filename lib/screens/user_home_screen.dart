@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pizzeria/services/firebaseService.dart';
 import '../models/user.dart';
 import '../components/ErrorMSG.dart';
 import '../screens/order_screen.dart';
@@ -18,7 +19,6 @@ class UserHomeScreen extends StatefulWidget {
 class _UserHomeScreenState extends State<UserHomeScreen>
     with SingleTickerProviderStateMixin {
   final _auth = FirebaseAuth.instance;
-  final _fireStore = Firestore.instance;
   FirebaseUser loggedUser;
   User user;
 
@@ -48,15 +48,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
       final tempUser = await _auth.currentUser();
       if (tempUser != null) {
         //get all user info from database
-        final collection = await _fireStore.collection('user').getDocuments();
-        for (var u in collection.documents) {
-          if (u.data['email'] == tempUser.email) {
-            user = new User(
-                email: u.data['email'],
-                firstName: u.data['first_name'],
-                lastName: u.data['last_name']);
-          }
-        }
+        user = await FireBase.getCurrentUserInfo();
         setState(() {
           spinner = false;
         });
@@ -78,7 +70,8 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${spinner == true ? '' : user.getFirstName()}'),
+        title:
+            Text('${spinner == true ? '' : user.getFirstName().toUpperCase()}'),
         elevation: 3,
         actions: [
           FlatButton(
@@ -88,6 +81,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
             ),
             onPressed: () {
               try {
+                FireBase.clearForLogout();
                 _auth.signOut();
                 Navigator.pop(context);
               } catch (e) {
@@ -111,18 +105,15 @@ class _UserHomeScreenState extends State<UserHomeScreen>
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: UpdateFromSeller(
-                  fireStore: _fireStore,
-                  user: spinner == true ? null : user,
-                ),
+                child: FireBase.user == null
+                    ? CircularProgressIndicator()
+                    : UpdateFromSeller(),
               ),
             ),
             Expanded(
               flex: 4,
               child: Container(
-                  padding: EdgeInsets.all(10),
-                  child: myList[tabIndex]
-              ),
+                  padding: EdgeInsets.all(10), child: myList[tabIndex]),
             ),
             TabBar(
               onTap: (val) {

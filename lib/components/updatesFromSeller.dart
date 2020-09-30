@@ -3,15 +3,10 @@ import 'dart:ffi';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pizzeria/models/user.dart';
+import 'package:pizzeria/services/firebaseService.dart';
 import '../models/meal.dart';
 
 class UpdateFromSeller extends StatefulWidget {
-  UpdateFromSeller({this.fireStore, this.user});
-
-  final Firestore fireStore;
-  final User user;
-
   @override
   _UpdateFromSellerState createState() => _UpdateFromSellerState();
 }
@@ -20,6 +15,7 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
   Firestore ordersCollection = Firestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser stateUser;
+  bool userLoaded = false;
   Meal activeMeal;
   List<Meal> allOrders = new List();
   List<String> stateMsg = ['בהמתנה', 'בהכנה', 'הזמנה מוכנה'];
@@ -32,10 +28,13 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
 
   void setUser() async {
     stateUser = await _auth.currentUser();
+    setState(() {
+      userLoaded = true;
+    });
   }
 
   void setMeal() async {
-    ordersCollection = widget.fireStore;
+    ordersCollection = Firestore.instance;
     final orderCollection =
         await ordersCollection.collection('orders').getDocuments();
 
@@ -75,21 +74,20 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
   Widget build(BuildContext context) {
     //TODO לתקן :אם הבסיס נתיונים יגדל משמעותית צריך לחכות יותר ואז פ ה יספיק לטעון
     setUser();
+    if (userLoaded == false) {
+      return Center(child: CircularProgressIndicator());
+    }
+    if (FireBase.user == null) {
+      return Text('user offline');
+    }
     return StreamBuilder<QuerySnapshot>(
-      stream: widget.fireStore.collection('orders').snapshots(),
+      stream: FireBase.getActiveOrders(FireBase.user.email),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(
-            child: CircularProgressIndicator(
-              backgroundColor: Colors.blueAccent,
-            ),
-          );
+          return Center(child: CircularProgressIndicator());
         }
         var orders = snapshot.data.documents;
-        int i = 0;
         for (var order in orders) {
-          print(order.documentID);
-          i++;
           if (stateUser.email == order.data['user_email']) {
             getActiveMeal(
                 status: order.data['status'],

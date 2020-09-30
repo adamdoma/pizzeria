@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       final toLogUser = await _auth.signInWithEmailAndPassword(
                           email: email, password: password);
                       if (toLogUser != null) {
-                        Navigator.pushNamed(context, UserHomeScreen.ID);
+                        Navigator.popAndPushNamed(context, UserHomeScreen.ID);
                       }
                       setState(() {
                         spinner = false;

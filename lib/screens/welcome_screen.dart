@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pizzeria/screens/login_screen.dart';
+import 'package:pizzeria/screens/user_home_screen.dart';
+import 'package:pizzeria/services/firebaseService.dart';
 import '../components/rounded_Button.dart';
 import '../screens/registration_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static const String ID = 'welcome_screen';
@@ -33,6 +36,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         padding = controller.value * 300;
       });
     });
+
+    FireBase.user = null;
   }
 
   @override
@@ -64,7 +69,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 RoundedButton(
                   text: 'LOGIN',
                   onTape: () {
-                    Navigator.pushNamed(context, LoginScreen.ID);
+                    if (FireBase.user == null)
+                      Navigator.pushNamed(context, LoginScreen.ID);
+                    else {
+                      Navigator.pushNamed(context, UserHomeScreen.ID);
+                    }
                   },
                 ),
                 SizedBox(

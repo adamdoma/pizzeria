@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pizzeria/models/meal.dart';
+import 'package:pizzeria/services/firebaseService.dart';
 
 class OrederHistory extends StatefulWidget {
   @override
@@ -9,9 +10,9 @@ class OrederHistory extends StatefulWidget {
 }
 
 class _OrederHistoryState extends State<OrederHistory> {
-  final _auth = FirebaseAuth.instance;
-  final _fireStore = Firestore.instance;
-  FirebaseUser fbu;
+//  final _auth = FirebaseAuth.instance;
+//  final _fireStore = Firestore.instance;
+//  FirebaseUser fbu;
   List<Meal> mealList = new List();
 
   @override
@@ -21,24 +22,18 @@ class _OrederHistoryState extends State<OrederHistory> {
   }
 
   void UserOrderHistory() async {
-    fbu = await _auth.currentUser();
-    await _fireStore
-        .collection('orders')
-        .where('user_email', isEqualTo: fbu.email)
-        .getDocuments()
-        .then((doc) {
-      for (var i in doc.documents) {
-        setState(() {
-          mealList.add(new Meal(
-              userEmail: fbu.email,
-              completed: i.data['completed'],
-              mealType: i.data['meal_type'],
-              orderDate: i.data['order_date'].toDate(),
-              quantity: i.data['quantity'],
-              status: i.data['status']));
-        });
-      }
-    });
+    QuerySnapshot doc = await FireBase.getUserHistoryOrders();
+    for (var i in doc.documents) {
+      setState(() {
+        mealList.add(new Meal(
+            userEmail: FireBase.user.email,
+            completed: i.data['completed'],
+            mealType: i.data['meal_type'],
+            orderDate: i.data['order_date'].toDate(),
+            quantity: i.data['quantity'],
+            status: i.data['status']));
+      });
+    }
   }
 
   @override
