@@ -92,7 +92,7 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
             getActiveMeal(
                 status: order.data['status'],
                 orderDate: order.data['order_date'],
-                mealType: order.data['meal_type'],
+//                mealType: order.data['meal_type'].toList(),
                 completed: order.data['completed'],
                 quantity: order.data['quantity'],
                 userEmail: order.data['user_email']);

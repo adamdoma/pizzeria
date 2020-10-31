@@ -1,14 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pizzeria/consts.dart';
-import 'package:pizzeria/main.dart';
 import 'package:pizzeria/models/user.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import '../components/ErrorMSG.dart';
 import '../models/meal.dart';
-import '../components/rounded_Button.dart';
+import 'dart:math' as math;
 
 class NewOrder extends StatefulWidget {
   @override
@@ -18,13 +16,16 @@ class NewOrder extends StatefulWidget {
 class _NewOrderState extends State<NewOrder> {
   final _fireStore = Firestore.instance;
   User stateUser = FireBase.user;
-  double count = 0;
+
   Map<String, dynamic> addOns;
   List<String> addOnsKeyNames;
-  bool selected = false, leftSide = false, rightSide = false;
   List<Meal> orderCart = [];
   List<Image> mealImages = [];
+  List<Map> listOfMapsToFirebase = [];
+
+  bool selected = false, leftSide = false, rightSide = false;
   int mealSelector = 0;
+  double count = 0;
 
   @override
   void initState() {
@@ -83,7 +84,7 @@ class _NewOrderState extends State<NewOrder> {
 
   void clearMap() {
     addOns.forEach((key, value) {
-      value = false;
+      value = 0;
     });
   }
 
@@ -99,7 +100,7 @@ class _NewOrderState extends State<NewOrder> {
         height: MediaQuery.of(context).size.height * 0.65,
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Color(0xff45b0ff),
+          gradient: kLinearColorsContainer,
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(30),
             topLeft: Radius.circular(30),
@@ -249,21 +250,28 @@ class _NewOrderState extends State<NewOrder> {
                         ),
                         child: Column(
                           children: List.generate(
-                              orderCart[mealSelector]
-                                  .mealType
-                                  .keys
-                                  .toList()
-                                  .length, (index) {
+                              mealSelector < orderCart.length
+                                  ? orderCart[mealSelector]
+                                      .mealType
+                                      .keys
+                                      .toList()
+                                      .length
+                                  : mealSelector = 0, (index) {
                             return AddOns(
                               label: addOnsKeyNames[index],
                               toSelect: orderCart[mealSelector]
                                   .mealType[addOnsKeyNames[index]],
-                              func: () {
+                              func: (int x) {
                                 setState(() {
+                                  if (orderCart[mealSelector]
+                                          .mealType[addOnsKeyNames[index]] ==
+                                      x) {
+                                    x = 0;
+                                  }
                                   orderCart[mealSelector]
-                                          .mealType[addOnsKeyNames[index]] =
-                                      !orderCart[mealSelector]
-                                          .mealType[addOnsKeyNames[index]];
+                                      .mealType[addOnsKeyNames[index]] = x;
+//                                      !orderCart[mealSelector]
+//                                          .mealType[addOnsKeyNames[index]];
                                 });
                               },
                             );
@@ -309,12 +317,17 @@ class _NewOrderState extends State<NewOrder> {
                                   textAlign: TextAlign.start,
                                 ),
                                 onPressed: () {
+                                  for (int i = 0; i < orderCart.length; i++) {
+                                    listOfMapsToFirebase
+                                        .add(orderCart[i].mealType);
+                                  }
                                   try {
+//                                    print('${listOfMapsToFirebase[0]}');
                                     _fireStore.collection('active_orders').add({
                                       'completed': false,
-                                      'meal_type': addOns,
+                                      'meal_type': listOfMapsToFirebase,
                                       'order_date': Timestamp.now(),
-                                      'quantity': count,
+                                      'quantity': orderCart.length.toDouble(),
                                       'status': 0,
                                       'user_email': stateUser.email
                                     });
@@ -327,6 +340,11 @@ class _NewOrderState extends State<NewOrder> {
                                     getAddons();
                                   });
                                   Navigator.pop(context);
+                                  listOfMapsToFirebase.clear();
+                                  orderCart.clear();
+                                  mealImages.clear();
+                                  mealSelector = 0;
+                                  count = 0;
                                 },
                               ),
                               FlatButton(
@@ -363,45 +381,107 @@ class AddOns extends StatelessWidget {
   AddOns({this.label, this.func, this.toSelect});
 
   final String label;
-  final bool toSelect;
+  final int toSelect;
   final Function func;
 //  final Function toggleCheckBoxState;
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 10),
-      decoration: kAddonContainerDecoration.copyWith(),
-      child: Row(
-        textDirection: TextDirection.rtl,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              label,
-              style: kTextStyle.copyWith(color: Colors.black45),
+      margin: EdgeInsets.symmetric(vertical: 10),
+      decoration: kAddonContainerDecoration.copyWith(
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(10)),
+      ),
+      child: Container(
+        child: Row(
+          textDirection: TextDirection.rtl,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              flex: 2,
+              child: Center(
+                child: Text(
+                  label,
+                  style: kTextStyle.copyWith(color: Colors.black),
+                ),
+              ),
             ),
-          ),
-          Expanded(
-            child: Row(
-              textDirection: TextDirection.rtl,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                GestureDetector(
-                  child: toSelect ? Icon(Icons.lens) : Icon(Icons.trip_origin),
-                  onTap: func,
-                ),
-                GestureDetector(
-                  child: toSelect ? Icon(Icons.lens) : Icon(Icons.trip_origin),
-                  onTap: func,
-                ),
-                GestureDetector(
-                  child: toSelect ? Icon(Icons.lens) : Icon(Icons.trip_origin),
-                  onTap: func,
-                ),
-              ],
+            Expanded(
+              flex: 5,
+              child: Row(
+                textDirection: TextDirection.rtl,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  GestureDetector(
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 400),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return ScaleTransition(
+                          scale: animation,
+                          child: child,
+                        );
+                      },
+                      child: toSelect == 2
+                          ? ClipRRect(
+                              key: ValueKey(1),
+                              borderRadius: BorderRadius.circular(50),
+                              child: Transform.rotate(
+                                angle: 180 * math.pi / 180,
+                                child: Image.asset(
+                                  'img/onPizza.jpg',
+//                                : 'img/offPizza.png',
+                                  height: 50,
+                                  width: 50,
+                                ),
+                              ),
+                            )
+                          : ClipRRect(
+                              key: ValueKey(2),
+                              borderRadius: BorderRadius.circular(50),
+                              child: Transform.rotate(
+                                angle: 180 * math.pi / 180,
+                                child: Image.asset(
+//                      'img/onPizza.jpg',
+                                  'img/offPizza.png',
+                                  height: 50,
+                                  width: 50,
+                                ),
+                              ),
+                            ),
+                    ),
+                    onTap: () => func(2),
+                  ),
+                  GestureDetector(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        toSelect == 1 ? 'img/onFull.jpg' : 'img/offFull.png',
+                        height: 50,
+                        width: 50,
+                      ),
+                    ),
+                    onTap: () => func(1),
+                  ),
+                  GestureDetector(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset(
+                        toSelect == 3 ? 'img/onPizza.jpg' : 'img/offPizza.png',
+                        height: 50,
+                        width: 50,
+                      ),
+                    ),
+                    onTap: () => func(3),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

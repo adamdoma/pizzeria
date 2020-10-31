@@ -106,7 +106,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: FireBase.user == null
-                    ? CircularProgressIndicator()
+                    ? Center(child: CircularProgressIndicator())
                     : UpdateFromSeller(),
               ),
             ),

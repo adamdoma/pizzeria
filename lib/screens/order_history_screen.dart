@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pizzeria/consts.dart';
 import 'package:pizzeria/models/meal.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 
@@ -46,7 +47,7 @@ class _OrederHistoryState extends State<OrederHistory> {
       return Container(
         padding: EdgeInsets.only(top: 20, left: 10, right: 10),
         decoration: BoxDecoration(
-          color: Colors.blueAccent,
+          gradient: kLinearColorsContainer,
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(30),
             topLeft: Radius.circular(30),
@@ -62,7 +63,10 @@ class _OrederHistoryState extends State<OrederHistory> {
                       color: Colors.white70,
                       elevation: 5,
                       child: ListTile(
-                        leading: Icon(Icons.account_circle),
+                        leading: Icon(
+                          Icons.check_box,
+                          color: Colors.white,
+                        ),
                         title: Text(
                             'Date: ${mealList[index].orderDate.day}/${mealList[index].orderDate.month}/${mealList[index].orderDate.year}'),
                         subtitle: Text('Quantity: ${mealList[index].quantity}'),

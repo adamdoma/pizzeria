@@ -34,15 +34,24 @@ const kContainerDecoration = BoxDecoration(
 
 const kAddonContainerDecoration = BoxDecoration(
   color: Colors.white,
+  gradient: LinearGradient(
+      colors: [Colors.white, Colors.white70],
+      begin: Alignment.topRight,
+      end: Alignment.bottomLeft),
   boxShadow: [
     BoxShadow(
-      color: Colors.black12,
-      spreadRadius: 3,
-      blurRadius: 9,
-      offset: Offset(10, 10), // changes position of shadow
+      color: Colors.white30,
+      spreadRadius: 1,
+      blurRadius: 2,
+      offset: Offset(6, 5), // changes position of shadow
     ),
   ],
 );
 
 const kTextStyle =
     TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 20);
+
+const kLinearColorsContainer = LinearGradient(
+    colors: [Colors.blueAccent, Colors.black],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight);
