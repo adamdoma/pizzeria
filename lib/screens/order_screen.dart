@@ -5,6 +5,7 @@ import 'package:pizzeria/consts.dart';
 import 'package:pizzeria/models/user.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import '../components/ErrorMSG.dart';
+import '../components/rounded_Button.dart';
 import '../models/meal.dart';
 import 'dart:math' as math;
 
@@ -25,7 +26,7 @@ class _NewOrderState extends State<NewOrder> {
 
   bool selected = false, leftSide = false, rightSide = false;
   int mealSelector = 0;
-  double count = 0;
+  double pizzaCountInOrder = 0;
 
   @override
   void initState() {
@@ -134,11 +135,11 @@ class _NewOrderState extends State<NewOrder> {
                     size: 40,
                   ),
                   onPressed: () {
-                    if (count > 0) {
+                    if (pizzaCountInOrder > 0) {
                       setState(() {
                         mealsUpdate(false);
-                        count -= 0.5;
-                        if (count == 0) {
+                        pizzaCountInOrder -= 0.5;
+                        if (pizzaCountInOrder == 0) {
                           orderCart.clear();
                         }
                       });
@@ -146,7 +147,7 @@ class _NewOrderState extends State<NewOrder> {
                   },
                 ),
                 Text(
-                  '$count',
+                  '$pizzaCountInOrder',
                   style: kTextStyle,
                 ),
                 FlatButton(
@@ -156,10 +157,10 @@ class _NewOrderState extends State<NewOrder> {
                     size: 40,
                   ),
                   onPressed: () {
-                    if (count < 6) {
+                    if (pizzaCountInOrder < 6) {
                       setState(() {
                         mealsUpdate(true);
-                        count += 0.5;
+                        pizzaCountInOrder += 0.5;
                       });
                     }
                   },
@@ -292,74 +293,64 @@ class _NewOrderState extends State<NewOrder> {
                   var onlineServes = snapshot.data.documents;
 
                   if (onlineServes.first.data['onlineServes'] == true) {
-                    return FloatingActionButton(
-                      elevation: 6,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        'הזמן',
-                        style:
-                            kTextStyle.copyWith(color: Colors.lightBlueAccent),
-                      ),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (_) => AlertDialog(
-                            title: Text(
-                              'אישור הזמנה',
-                              textAlign: TextAlign.end,
-                            ),
-                            elevation: 3,
-                            actions: [
-                              FlatButton(
-                                child: Text(
-                                  'כן',
-                                  textAlign: TextAlign.start,
-                                ),
-                                onPressed: () {
-                                  for (int i = 0; i < orderCart.length; i++) {
-                                    listOfMapsToFirebase
-                                        .add(orderCart[i].mealType);
-                                  }
-                                  try {
-//                                    print('${listOfMapsToFirebase[0]}');
-                                    _fireStore.collection('active_orders').add({
-                                      'completed': false,
-                                      'meal_type': listOfMapsToFirebase,
-                                      'order_date': Timestamp.now(),
-                                      'quantity': orderCart.length.toDouble(),
-                                      'status': 0,
-                                      'user_email': stateUser.email
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5),
+                      child: RoundedButton(
+                        text: 'הזמן',
+                        onTape: () {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => AlertDialog(
+                              title: Text(
+                                'אישור הזמנה',
+                                textAlign: TextAlign.end,
+                              ),
+                              elevation: 3,
+                              actions: [
+                                FlatButton(
+                                  child: Text(
+                                    'כן',
+                                    textAlign: TextAlign.start,
+                                  ),
+                                  onPressed: () {
+                                    for (int i = 0; i < orderCart.length; i++) {
+                                      listOfMapsToFirebase
+                                          .add(orderCart[i].mealType);
+                                    }
+                                    try {
+                                      FireBase.addNewOrder(pizzaCountInOrder,
+                                          listOfMapsToFirebase);
+                                    } catch (e) {
+                                      ErrorMsg(
+                                        msg: e.toString(),
+                                      );
+                                    }
+                                    setState(() {
+                                      getAddons();
                                     });
-                                  } catch (e) {
-                                    ErrorMsg(
-                                      msg: e.toString(),
-                                    );
-                                  }
-                                  setState(() {
-                                    getAddons();
-                                  });
-                                  Navigator.pop(context);
-                                  listOfMapsToFirebase.clear();
-                                  orderCart.clear();
-                                  mealImages.clear();
-                                  mealSelector = 0;
-                                  count = 0;
-                                },
-                              ),
-                              FlatButton(
-                                child: Text(
-                                  'לא',
-                                  textAlign: TextAlign.start,
+                                    Navigator.pop(context);
+                                    listOfMapsToFirebase.clear();
+                                    orderCart.clear();
+                                    mealImages.clear();
+                                    mealSelector = 0;
+                                    pizzaCountInOrder = 0;
+                                  },
                                 ),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                FlatButton(
+                                  child: Text(
+                                    'לא',
+                                    textAlign: TextAlign.start,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     );
                   }
                   return Text(

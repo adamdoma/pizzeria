@@ -59,4 +59,40 @@ class FireBase {
   static Stream onlineServess() {
     return Firestore.instance.collection('store').snapshots();
   }
+
+  static void addNewOrder(double count, List<Map> addons) async {
+    await Firestore.instance.collection('active_orders').add({
+      'completed': false,
+      'meal_type': addons,
+      'order_date': Timestamp.now(),
+      'quantity': count,
+      'status': 0,
+      'user_email': user.email
+    });
+  }
+
+  static Future<bool> editUserNameAndLastName(
+      String newName, String newLastName) async {
+    bool isOk = false;
+    try {
+      await Firestore.instance
+          .collection('user')
+          .where('email', isEqualTo: '${user.email}')
+          .getDocuments()
+          .then((value) async {
+        await Firestore.instance
+            .document("user/${value.documents[0].documentID}")
+            .updateData({"first_name": newName, "last_name": newLastName});
+      });
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  static void refresh() async {
+    clearForLogout();
+    await getCurrentUserInfo();
+  }
 }

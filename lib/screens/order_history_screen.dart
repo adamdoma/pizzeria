@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pizzeria/consts.dart';
 import 'package:pizzeria/models/meal.dart';
 import 'package:pizzeria/services/firebaseService.dart';
+import '../components/InfoTabWidget.dart';
 
 class OrederHistory extends StatefulWidget {
   @override
@@ -15,6 +16,7 @@ class _OrederHistoryState extends State<OrederHistory> {
 //  final _fireStore = Firestore.instance;
 //  FirebaseUser fbu;
   List<Meal> mealList = new List();
+  double colorIndex = 0.0;
 
   @override
   void initState() {
@@ -44,39 +46,67 @@ class _OrederHistoryState extends State<OrederHistory> {
         child: Text('אין היסטוריה'),
       );
     } else
-      return Container(
-        padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-        decoration: BoxDecoration(
-          gradient: kLinearColorsContainer,
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(30),
-            topLeft: Radius.circular(30),
-          ),
-        ),
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                itemCount: mealList.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                      color: Colors.white70,
-                      elevation: 5,
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.check_box,
-                          color: Colors.white,
-                        ),
-                        title: Text(
-                            'Date: ${mealList[index].orderDate.day}/${mealList[index].orderDate.month}/${mealList[index].orderDate.year}'),
-                        subtitle: Text('Quantity: ${mealList[index].quantity}'),
-                        trailing: Text('20\u20AA'),
-                      ));
-                },
+      return Stack(
+        overflow: Overflow.visible,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.only(top: 20, left: 10, right: 10),
+            decoration: BoxDecoration(
+              gradient: kLinearColorsContainer,
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(30),
+                topLeft: Radius.circular(30),
               ),
-            )
-          ],
-        ),
+            ),
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: mealList.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: EdgeInsets.only(top: 10),
+                        child: Card(
+                            color: Colors.white70,
+                            elevation: 5,
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.check_box,
+                                color: Colors.white,
+                              ),
+                              title: Text(
+                                  'Date: ${mealList[index].orderDate.day}/${mealList[index].orderDate.month}/${mealList[index].orderDate.year}'),
+                              subtitle:
+                                  Text('Quantity: ${mealList[index].quantity}'),
+                              trailing: Text('20\u20AA'),
+                            )),
+                      );
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
+          Positioned(
+            top: -15,
+            right: 10,
+            height: 30,
+            width: MediaQuery.of(context).size.width / 3,
+            child: OrderHistoryInfoTabWidget(
+              number: mealList.length.toDouble(),
+              lbl: "כמות הזמנות",
+            ),
+          ),
+          Positioned(
+              top: -15,
+              left: 10,
+              height: 30,
+              width: MediaQuery.of(context).size.width / 3,
+              child: OrderHistoryInfoTabWidget(
+                number: mealList.length.toDouble() * 20,
+                lbl: '\u20AA',
+              )),
+        ],
       );
   }
 }
