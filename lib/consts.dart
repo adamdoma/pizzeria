@@ -55,3 +55,14 @@ const kLinearColorsContainer = LinearGradient(
     colors: [Colors.blueAccent, Colors.black],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight);
+
+List<Color> kDividerColors = [
+  Colors.white,
+  Colors.white70,
+  Colors.white60,
+  Colors.white54,
+  Colors.white38,
+  Colors.white30,
+  Colors.white24,
+  Colors.white12,
+];

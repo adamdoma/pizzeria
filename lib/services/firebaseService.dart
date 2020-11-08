@@ -1,28 +1,30 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user.dart';
 
 class FireBase {
-  static User user;
+  static Users user;
   static QuerySnapshot addons;
   static QuerySnapshot ordersHistory;
 
   //=--------------------------------------שאילתות--------------------------------------//
 
-  static Future<User> getCurrentUserInfo() async {
+  static Future<Users> getCurrentUserInfo() async {
     if (user != null) return user;
     try {
-      final tempUser = await FirebaseAuth.instance.currentUser();
-      await Firestore.instance
+      final tempUser = FirebaseAuth.instance.currentUser;
+      await FirebaseFirestore.instance
           .collection('user')
           .where('email', isEqualTo: tempUser.email)
-          .getDocuments()
+          .get()
           .then((value) {
-        DocumentSnapshot ds = value.documents.first;
-        user = new User(
-            email: ds.data['email'],
-            lastName: ds.data['last_name'],
-            firstName: ds.data['first_name']);
+        DocumentSnapshot ds = value.docs.first;
+        user = new Users(
+            email: ds.data()['email'],
+            lastName: ds.data()['last_name'],
+            firstName: ds.data()['first_name']);
       });
       return user;
     } catch (e) {
@@ -32,21 +34,28 @@ class FireBase {
   }
 
   static Stream getActiveOrders(String userEmail) {
-    return Firestore.instance.collection('active_orders').snapshots();
+    return FirebaseFirestore.instance.collection('active_orders').snapshots();
   }
 
   static Future<QuerySnapshot> getUserHistoryOrders() async {
     if (ordersHistory != null) return ordersHistory;
-    ordersHistory = await Firestore.instance
+    ordersHistory = await FirebaseFirestore.instance
         .collection('orders')
         .where('user_email', isEqualTo: user.email)
-        .getDocuments();
+        .get();
     return ordersHistory;
+  }
+
+  static void _updateUserHistoryOrders() async {
+    ordersHistory = await FirebaseFirestore.instance
+        .collection('orders')
+        .where('user_email', isEqualTo: user.email)
+        .get();
   }
 
   static Future<QuerySnapshot> getAddons() async {
     if (addons != null) return addons;
-    addons = await Firestore.instance.collection('add_on').getDocuments();
+    addons = await FirebaseFirestore.instance.collection('add_on').get();
     return addons;
   }
 
@@ -57,11 +66,11 @@ class FireBase {
   }
 
   static Stream onlineServess() {
-    return Firestore.instance.collection('store').snapshots();
+    return FirebaseFirestore.instance.collection('store').snapshots();
   }
 
   static void addNewOrder(double count, List<Map> addons) async {
-    await Firestore.instance.collection('active_orders').add({
+    await FirebaseFirestore.instance.collection('active_orders').add({
       'completed': false,
       'meal_type': addons,
       'order_date': Timestamp.now(),
@@ -75,14 +84,14 @@ class FireBase {
       String newName, String newLastName) async {
     bool isOk = false;
     try {
-      await Firestore.instance
+      await FirebaseFirestore.instance
           .collection('user')
           .where('email', isEqualTo: '${user.email}')
           .getDocuments()
           .then((value) async {
-        await Firestore.instance
-            .document("user/${value.documents[0].documentID}")
-            .updateData({"first_name": newName, "last_name": newLastName});
+        await FirebaseFirestore.instance
+            .doc("user/${value.docs[0].id}")
+            .update({"first_name": newName, "last_name": newLastName});
       });
       return true;
     } catch (e) {
@@ -91,8 +100,38 @@ class FireBase {
     }
   }
 
-  static void refresh() async {
-    clearForLogout();
-    await getCurrentUserInfo();
+  static void clearHistory() async {
+    await FirebaseFirestore.instance
+        .collection('orders')
+        .where('user_email', isEqualTo: "${user.email}")
+        .get()
+        .then((value) {
+      for (var document in value.docs) {
+        FirebaseFirestore.instance
+            .doc("orders/${document.id}")
+            .update({"user_email": "${user.email}1"});
+      }
+    });
+    _updateUserHistoryOrders();
+  }
+
+  static void addNewUser(
+      String email, String password, String firstName, String lastName) async {
+    try {
+      final newUser = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      if (newUser != null) {
+        User theNewUser = FirebaseAuth.instance.currentUser;
+        var tokin = await FirebaseMessaging().getToken();
+        FirebaseFirestore.instance.collection('user').add({
+          'email': theNewUser.email,
+          'first_name': firstName,
+          'last_name': lastName,
+          'tokin': tokin,
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }

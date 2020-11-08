@@ -16,7 +16,7 @@ class NewOrder extends StatefulWidget {
 
 class _NewOrderState extends State<NewOrder> {
   final _fireStore = Firestore.instance;
-  User stateUser = FireBase.user;
+  Users stateUser = FireBase.user;
 
   Map<String, dynamic> addOns;
   List<String> addOnsKeyNames;
@@ -36,9 +36,9 @@ class _NewOrderState extends State<NewOrder> {
 
   void getAddons() async {
     var t = await FireBase.getAddons();
-    for (var i in t.documents) {
+    for (var i in t.docs) {
       setState(() {
-        addOns = i.data;
+        addOns = i.data();
       });
       addOnsKeyNames = addOns.keys.toList();
     }
@@ -290,9 +290,9 @@ class _NewOrderState extends State<NewOrder> {
                       child: CircularProgressIndicator(),
                     );
                   }
-                  var onlineServes = snapshot.data.documents;
+                  var onlineServes = snapshot.data;
 
-                  if (onlineServes.first.data['onlineServes'] == true) {
+                  if (onlineServes.docs.first.data()['onlineServes'] == true) {
                     return Padding(
                       padding: EdgeInsets.symmetric(vertical: 5),
                       child: RoundedButton(

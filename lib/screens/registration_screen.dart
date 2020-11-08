@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:pizzeria/services/firebaseService.dart';
 import '../components/textFieldEmail.dart';
 import '../components/textFieldPassword.dart';
 import '../components/rounded_Button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../screens/user_home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 //TODO: להוסיף אם השם ושם משפחה ריקים להציג הודעה מתאימה
 class RegistrationScreen extends StatefulWidget {
@@ -15,7 +17,7 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
-  final _fireStore = Firestore.instance;
+  final _fireStore = FirebaseFirestore.instance;
   String email, password, conformPassword;
   String firstName;
   String lastName;
@@ -104,17 +106,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               onTape: () async {
                 if (conformPassword == password) {
                   try {
-                    final newUser = await _auth.createUserWithEmailAndPassword(
-                        email: email, password: password);
-                    if (newUser != null) {
-                      FirebaseUser theNewUser = await _auth.currentUser();
-                      Navigator.pushNamed(context, UserHomeScreen.ID);
-                      _fireStore.collection('user').add({
-                        'email': theNewUser.email,
-                        'first_name': firstName,
-                        'last_name': lastName,
-                      });
-                    }
+                    FireBase.addNewUser(email, password, firstName, lastName);
+                    Navigator.pushNamed(context, UserHomeScreen.ID);
                   } catch (e) {
                     print(e);
                   }

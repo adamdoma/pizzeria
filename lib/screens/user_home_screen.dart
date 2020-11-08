@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pizzeria/consts.dart';
 import 'package:pizzeria/services/firebaseService.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user.dart';
 import '../components/ErrorMSG.dart';
 import '../screens/order_screen.dart';
@@ -21,8 +21,8 @@ class UserHomeScreen extends StatefulWidget {
 class _UserHomeScreenState extends State<UserHomeScreen>
     with SingleTickerProviderStateMixin {
   final _auth = FirebaseAuth.instance;
-  FirebaseUser loggedUser;
-  User user;
+  User loggedUser;
+  Users user;
 
   TabController _tabController;
 
@@ -37,11 +37,32 @@ class _UserHomeScreenState extends State<UserHomeScreen>
 
   int tabIndex = 0;
 
+  Future<void> Tokin() async {
+    var tokin = await FirebaseMessaging().getToken();
+    print(
+        '---------------------------------------------------------------------------------');
+    print(tokin);
+    print(
+        '---------------------------------------------------------------------------------');
+  }
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: 3);
+    Tokin();
     getCurrentUser();
+    final fbm = FirebaseMessaging();
+    fbm.configure(onMessage: (msg) {
+      print(msg);
+      return;
+    }, onLaunch: (msg) {
+      print(msg);
+      return;
+    }, onResume: (msg) {
+      print(msg);
+      return;
+    });
   }
 
   void getCurrentUser() async {
@@ -49,7 +70,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
       spinner = true;
     });
     try {
-      final tempUser = await _auth.currentUser();
+      final tempUser = _auth.currentUser;
       if (tempUser != null) {
         //get all user info from database
         user = await FireBase.getCurrentUserInfo();

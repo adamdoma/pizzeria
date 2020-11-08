@@ -1,5 +1,5 @@
-class User {
-  User({this.email, this.firstName, this.lastName});
+class Users {
+  Users({this.email, this.firstName, this.lastName});
 
   String firstName, lastName, email;
 

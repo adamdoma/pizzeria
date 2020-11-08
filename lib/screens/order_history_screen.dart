@@ -12,9 +12,6 @@ class OrederHistory extends StatefulWidget {
 }
 
 class _OrederHistoryState extends State<OrederHistory> {
-//  final _auth = FirebaseAuth.instance;
-//  final _fireStore = Firestore.instance;
-//  FirebaseUser fbu;
   List<Meal> mealList = new List();
   double colorIndex = 0.0;
 
@@ -25,16 +22,16 @@ class _OrederHistoryState extends State<OrederHistory> {
   }
 
   void UserOrderHistory() async {
-    QuerySnapshot doc = await FireBase.getUserHistoryOrders();
-    for (var i in doc.documents) {
+    QuerySnapshot qs = await FireBase.getUserHistoryOrders();
+    for (var doc in qs.docs) {
       setState(() {
         mealList.add(new Meal(
             userEmail: FireBase.user.email,
-            completed: i.data['completed'],
-            mealType: i.data['meal_type'],
-            orderDate: i.data['order_date'].toDate(),
-            quantity: i.data['quantity'],
-            status: i.data['status']));
+            completed: doc.data()['completed'],
+            mealType: doc.data()['meal_type'],
+            orderDate: doc.data()['order_date'].toDate(),
+            quantity: doc.data()['quantity'],
+            status: doc.data()['status']));
       });
     }
   }

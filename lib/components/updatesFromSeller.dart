@@ -12,9 +12,9 @@ class UpdateFromSeller extends StatefulWidget {
 }
 
 class _UpdateFromSellerState extends State<UpdateFromSeller> {
-  Firestore ordersCollection = Firestore.instance;
+  FirebaseFirestore ordersCollection = FirebaseFirestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
-  FirebaseUser stateUser;
+  User stateUser;
   bool userLoaded = false;
   Meal activeMeal;
   List<Meal> allOrders = new List();
@@ -27,20 +27,15 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
   }
 
   void setUser() async {
-    stateUser = await _auth.currentUser();
+    stateUser = _auth.currentUser;
     setState(() {
       userLoaded = true;
     });
   }
 
   void setMeal() async {
-    ordersCollection = Firestore.instance;
-    final orderCollection =
-        await ordersCollection.collection('orders').getDocuments();
-
-    for (var i in orderCollection.documents) {
-      print(i.data['status']);
-    }
+    ordersCollection = FirebaseFirestore.instance;
+    final orderCollection = await ordersCollection.collection('orders').get();
   }
 
   void getActiveMeal(
@@ -86,17 +81,17 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
         if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
         }
-        var orders = snapshot.data.documents;
-        for (var order in orders) {
-          if (stateUser.email == order.data['user_email']) {
+        var orders = snapshot.data;
+        for (var order in orders.docs) {
+          if (stateUser.email == order['user_email']) {
             getActiveMeal(
-                status: order.data['status'],
-                orderDate: order.data['order_date'],
+                status: order.data()['status'],
+                orderDate: order.data()['order_date'],
 //                mealType: order.data['meal_type'].toList(),
-                completed: order.data['completed'],
-                quantity: order.data['quantity'],
-                userEmail: order.data['user_email']);
-            if (order.data['status'] <= 2) {
+                completed: order.data()['completed'],
+                quantity: order.data()['quantity'],
+                userEmail: order.data()['user_email']);
+            if (order.data()['status'] <= 2) {
               return (Container(
                 child: Card(
                   elevation: 3,
@@ -122,7 +117,6 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
           color: Colors.white,
           child: Center(child: Text('אין הזמנות פעילות')),
         );
-        ;
       },
     );
   }

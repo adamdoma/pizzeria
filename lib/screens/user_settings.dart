@@ -79,16 +79,8 @@ class _UserSettingsState extends State<UserSettings>
               ),
             ),
             ShaderMask(
-              shaderCallback: (val) => LinearGradient(colors: <Color>[
-                Colors.white,
-                Colors.white70,
-                Colors.white60,
-                Colors.white54,
-                Colors.white38,
-                Colors.white30,
-                Colors.white24,
-                Colors.white12,
-              ]).createShader(val),
+              shaderCallback: (val) =>
+                  LinearGradient(colors: kDividerColors).createShader(val),
               child: Divider(
                 thickness: 6,
                 color: Colors.white,
@@ -153,9 +145,7 @@ class _UserSettingsState extends State<UserSettings>
                     );
                     textEditingControllerFirstName.clear();
                     textEditingControllerLastName.clear();
-                    setState(() {
-                      FireBase.refresh();
-                    });
+//                    setState(() {});
                   } catch (e) {
 //                    showDialog(
 //                      context: context,
@@ -173,16 +163,8 @@ class _UserSettingsState extends State<UserSettings>
             ),
             ShaderMask(
 //              blendMode: BlendMode.dstATop,
-              shaderCallback: (val) => LinearGradient(colors: <Color>[
-                Colors.white,
-                Colors.white70,
-                Colors.white60,
-                Colors.white54,
-                Colors.white38,
-                Colors.white30,
-                Colors.white24,
-                Colors.white12,
-              ]).createShader(val),
+              shaderCallback: (val) =>
+                  LinearGradient(colors: kDividerColors).createShader(val),
               child: Divider(
                 thickness: 6,
                 color: Colors.white,
@@ -202,7 +184,9 @@ class _UserSettingsState extends State<UserSettings>
                 shape: Border(
                     top: BorderSide(color: Colors.red, width: 3),
                     bottom: BorderSide(color: Colors.red, width: 3)),
-                onPressed: () {},
+                onPressed: () {
+                  FireBase.clearHistory();
+                },
               ),
             ),
           ],
