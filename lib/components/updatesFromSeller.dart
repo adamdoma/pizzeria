@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import '../models/meal.dart';
+import '../components/order_status_widget.dart';
 
 class UpdateFromSeller extends StatefulWidget {
   @override
@@ -122,22 +123,4 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
   }
 }
 
-class orderStatus extends StatelessWidget {
-  orderStatus({this.status});
-  int status;
 
-  List<Color> statColor = [
-    Colors.red,
-    Colors.yellow,
-    Colors.green,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(
-      Icons.brightness_1,
-      color: statColor[status],
-      size: 40,
-    );
-  }
-}
