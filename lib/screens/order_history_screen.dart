@@ -28,7 +28,6 @@ class _OrederHistoryState extends State<OrederHistory> {
         mealList.add(new Meal(
             userEmail: FireBase.user.email,
             completed: doc.data()['completed'],
-            mealType: doc.data()['meal_type'],
             orderDate: doc.data()['order_date'].toDate(),
             quantity: doc.data()['quantity'],
             status: doc.data()['status']));
