@@ -367,6 +367,8 @@ class _NewOrderState extends State<NewOrder> {
   }
 }
 
+//TODO: new file widget for addons
+
 // ignore: must_be_immutable
 class AddOns extends StatelessWidget {
   AddOns({this.label, this.func, this.toSelect});
@@ -447,24 +449,66 @@ class AddOns extends StatelessWidget {
                     onTap: () => func(2),
                   ),
                   GestureDetector(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: Image.asset(
-                        toSelect == 1 ? 'img/onFull.jpg' : 'img/offFull.png',
-                        height: 50,
-                        width: 50,
-                      ),
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 400),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return RotationTransition(
+                          turns: animation,
+                          child: child,
+                        );
+                      },
+                      child: toSelect == 1
+                          ? ClipRRect(
+                              key: ValueKey(3),
+                              borderRadius: BorderRadius.circular(50),
+                              child: Image.asset(
+                                'img/onFull.jpg',
+                                height: 50,
+                                width: 50,
+                              ),
+                            )
+                          : ClipRRect(
+                              key: ValueKey(4),
+                              borderRadius: BorderRadius.circular(50),
+                              child: Image.asset(
+                                'img/offFull.png',
+                                height: 50,
+                                width: 50,
+                              ),
+                            ),
                     ),
                     onTap: () => func(1),
                   ),
                   GestureDetector(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: Image.asset(
-                        toSelect == 3 ? 'img/onPizza.jpg' : 'img/offPizza.png',
-                        height: 50,
-                        width: 50,
-                      ),
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 400),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return ScaleTransition(
+                          scale: animation,
+                          child: child,
+                        );
+                      },
+                      child: toSelect == 3
+                          ? ClipRRect(
+                              key: ValueKey(5),
+                              borderRadius: BorderRadius.circular(50),
+                              child: Image.asset(
+                                'img/onPizza.jpg',
+                                height: 50,
+                                width: 50,
+                              ),
+                            )
+                          : ClipRRect(
+                              key: ValueKey(6),
+                              borderRadius: BorderRadius.circular(50),
+                              child: Image.asset(
+                                'img/offPizza.png',
+                                height: 50,
+                                width: 50,
+                              ),
+                            ),
                     ),
                     onTap: () => func(3),
                   ),
