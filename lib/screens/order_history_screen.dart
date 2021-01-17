@@ -6,19 +6,27 @@ import 'package:pizzeria/models/meal.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import '../components/InfoTabWidget.dart';
 
-class OrederHistory extends StatefulWidget {
+class OrderHistory extends StatefulWidget {
   @override
-  _OrederHistoryState createState() => _OrederHistoryState();
+  _OrderHistoryState createState() => _OrderHistoryState();
 }
 
-class _OrederHistoryState extends State<OrederHistory> {
+class _OrderHistoryState extends State<OrderHistory> {
   List<Meal> mealList = new List();
   double colorIndex = 0.0;
+  double drink, pizza;
+
+  void initPirces() async {
+    DocumentSnapshot ds = await FireBase.getPrices();
+    pizza = ds.data()['p_price'].toDouble();
+    drink = ds.data()['drink_price'].toDouble();
+  }
 
   @override
   void initState() {
     super.initState();
     UserOrderHistory();
+    initPirces();
   }
 
   void UserOrderHistory() async {
@@ -74,7 +82,8 @@ class _OrederHistoryState extends State<OrederHistory> {
                                   'Date: ${mealList[index].orderDate.day}/${mealList[index].orderDate.month}/${mealList[index].orderDate.year}'),
                               subtitle:
                                   Text('Quantity: ${mealList[index].quantity}'),
-                              trailing: Text('20\u20AA'),
+                              trailing:
+                                  Text('${mealList[index].quantity * pizza}'),
                             )),
                       );
                     },
@@ -99,7 +108,7 @@ class _OrederHistoryState extends State<OrederHistory> {
               height: 30,
               width: MediaQuery.of(context).size.width / 3,
               child: OrderHistoryInfoTabWidget(
-                number: mealList.length.toDouble() * 20,
+                number: mealList.length.toDouble() * pizza.toDouble(),
                 lbl: '\u20AA',
               )),
         ],

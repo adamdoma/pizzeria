@@ -31,26 +31,21 @@ class _UserHomeScreenState extends State<UserHomeScreen>
 
   final List<Widget> myList = [
     NewOrder(),
-    OrederHistory(),
+    OrderHistory(),
     UserSettings(),
   ];
 
   int tabIndex = 0;
-
-  Future<void> Tokin() async {
-    var tokin = await FirebaseMessaging().getToken();
-    print(
-        '---------------------------------------------------------------------------------');
-    print(tokin);
-    print(
-        '---------------------------------------------------------------------------------');
-  }
+  //
+  // Future<void> Tokin() async {
+  //   var tokin = await FirebaseMessaging().getToken();
+  // }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: 3);
-    Tokin();
+    // Tokin();
     getCurrentUser();
     final fbm = FirebaseMessaging();
     fbm.configure(onMessage: (msg) {
@@ -204,5 +199,3 @@ class _UserHomeScreenState extends State<UserHomeScreen>
     );
   }
 }
-
-//Text('Welcome ${spinner == true ? 'waiting' : loggedUser.email}'),

@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user.dart';
 
@@ -8,6 +7,7 @@ class FireBase {
   static Users user;
   static QuerySnapshot addons;
   static QuerySnapshot ordersHistory;
+  static DocumentSnapshot prices;
 
   //=--------------------------------------שאילתות--------------------------------------//
 
@@ -65,8 +65,15 @@ class FireBase {
     addons = null;
   }
 
-  static Stream onlineServess() {
+  static Stream onlineServices() {
     return FirebaseFirestore.instance.collection('store').snapshots();
+  }
+
+  static Future<DocumentSnapshot> getPrices() async {
+    if (prices == null) {
+      prices = await FirebaseFirestore.instance.doc('store/pizza_price').get();
+    }
+    return prices;
   }
 
   static void addNewOrder(double count, List<Map> addons) async {
@@ -87,7 +94,7 @@ class FireBase {
       await FirebaseFirestore.instance
           .collection('user')
           .where('email', isEqualTo: '${user.email}')
-          .getDocuments()
+          .get()
           .then((value) async {
         await FirebaseFirestore.instance
             .doc("user/${value.docs[0].id}")

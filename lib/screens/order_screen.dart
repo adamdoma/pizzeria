@@ -15,7 +15,6 @@ class NewOrder extends StatefulWidget {
 }
 
 class _NewOrderState extends State<NewOrder> {
-  final _fireStore = Firestore.instance;
   Users stateUser = FireBase.user;
 
   Map<String, dynamic> addOns;
@@ -101,7 +100,10 @@ class _NewOrderState extends State<NewOrder> {
         height: MediaQuery.of(context).size.height * 0.65,
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          gradient: kLinearColorsContainer,
+          gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.white12],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight),
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(30),
             topLeft: Radius.circular(30),
@@ -233,21 +235,12 @@ class _NewOrderState extends State<NewOrder> {
                       child: Container(
                         margin: EdgeInsets.only(top: 10, bottom: 10),
                         decoration: BoxDecoration(
-                          color: Colors.white24,
+                          color: Colors.white12,
                           borderRadius: BorderRadius.only(
                               bottomRight: Radius.circular(40),
                               bottomLeft: Radius.circular(20),
                               topRight: Radius.circular(40),
                               topLeft: Radius.circular(20)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset:
-                                  Offset(0, 3), // changes position of shadow
-                            ),
-                          ],
                         ),
                         child: Column(
                           children: List.generate(
@@ -283,7 +276,7 @@ class _NewOrderState extends State<NewOrder> {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: FireBase.onlineServess(),
+                stream: FireBase.onlineServices(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Center(
@@ -382,12 +375,15 @@ class AddOns extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       decoration: kAddonContainerDecoration.copyWith(
-        borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(20),
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(10)),
-      ),
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(10)),
+          gradient: LinearGradient(
+              colors: [Colors.blueGrey, Colors.white],
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft)),
       child: Container(
         child: Row(
           textDirection: TextDirection.rtl,
