@@ -97,7 +97,7 @@ class _NewOrderState extends State<NewOrder> {
     }
     return SingleChildScrollView(
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.65,
+        height: MediaQuery.of(context).size.height * 0.7,
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -123,58 +123,61 @@ class _NewOrderState extends State<NewOrder> {
             SizedBox(
               height: 10,
             ),
-            Row(
-              textDirection: TextDirection.rtl,
-              children: [
-                Text(
-                  'כמות (מגש)',
-                  style: kTextStyle,
-                ),
-                FlatButton(
-                  textColor: Colors.white70,
-                  child: Icon(
-                    Icons.remove_circle,
-                    size: 40,
+            FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Row(
+                textDirection: TextDirection.rtl,
+                children: [
+                  Text(
+                    'כמות (מגש)',
+                    style: kTextStyle,
                   ),
-                  onPressed: () {
-                    if (pizzaCountInOrder > 0) {
-                      setState(() {
-                        mealsUpdate(false);
-                        pizzaCountInOrder -= 0.5;
-                        if (pizzaCountInOrder == 0) {
-                          orderCart.clear();
-                        }
-                      });
-                    }
-                  },
-                ),
-                Text(
-                  '$pizzaCountInOrder',
-                  style: kTextStyle,
-                ),
-                FlatButton(
-                  child: Icon(
-                    Icons.add_circle,
-                    color: Colors.white70,
-                    size: 40,
+                  FlatButton(
+                    textColor: Colors.white70,
+                    child: Icon(
+                      Icons.remove_circle,
+                      size: 40,
+                    ),
+                    onPressed: () {
+                      if (pizzaCountInOrder > 0) {
+                        setState(() {
+                          mealsUpdate(false);
+                          pizzaCountInOrder -= 0.5;
+                          if (pizzaCountInOrder == 0) {
+                            orderCart.clear();
+                          }
+                        });
+                      }
+                    },
                   ),
-                  onPressed: () {
-                    if (pizzaCountInOrder < 6) {
-                      setState(() {
-                        mealsUpdate(true);
-                        pizzaCountInOrder += 0.5;
-                      });
-                    }
-                  },
-                ),
-              ],
+                  Text(
+                    '$pizzaCountInOrder',
+                    style: kTextStyle,
+                  ),
+                  FlatButton(
+                    child: Icon(
+                      Icons.add_circle,
+                      color: Colors.white70,
+                      size: 40,
+                    ),
+                    onPressed: () {
+                      if (pizzaCountInOrder < 6) {
+                        setState(() {
+                          mealsUpdate(true);
+                          pizzaCountInOrder += 0.5;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: 10,
             ),
             Expanded(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 textDirection: TextDirection.rtl,
                 children: List.generate(mealImages.length, (index) {
                   return GestureDetector(
@@ -191,7 +194,8 @@ class _NewOrderState extends State<NewOrder> {
                               borderRadius: BorderRadius.circular(50),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.white70.withOpacity(0.7),
+                                  color:
+                                      Colors.deepOrangeAccent.withOpacity(0.7),
                                   spreadRadius: 6,
                                   blurRadius: 10,
                                   offset: Offset(
@@ -284,71 +288,91 @@ class _NewOrderState extends State<NewOrder> {
                     );
                   }
                   var onlineServes = snapshot.data;
-
-                  if (onlineServes.docs.first.data()['onlineServes'] == true) {
+                  bool storeOpenClose;
+                  for (var i in onlineServes.docs) {
+                    storeOpenClose = i.data()['onlineServes'];
+                  }
+                  if (storeOpenClose == true) {
                     return Padding(
                       padding: EdgeInsets.symmetric(vertical: 5),
                       child: RoundedButton(
                         text: 'הזמן',
                         onTape: () {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (_) => AlertDialog(
-                              title: Text(
-                                'אישור הזמנה',
-                                textAlign: TextAlign.end,
+                          if (orderCart.isNotEmpty) {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (_) => AlertDialog(
+                                title: Text(
+                                  'אישור הזמנה',
+                                  textAlign: TextAlign.end,
+                                ),
+                                elevation: 3,
+                                actions: [
+                                  FlatButton(
+                                    child: Text(
+                                      'כן',
+                                      textAlign: TextAlign.start,
+                                    ),
+                                    onPressed: () {
+                                      for (int i = 0;
+                                          i < orderCart.length;
+                                          i++) {
+                                        listOfMapsToFirebase
+                                            .add(orderCart[i].mealType);
+                                      }
+                                      try {
+                                        FireBase.addNewOrder(pizzaCountInOrder,
+                                            listOfMapsToFirebase);
+                                      } catch (e) {
+                                        ErrorMsg(
+                                          msg: e.toString(),
+                                        );
+                                      }
+                                      setState(() {
+                                        getAddons();
+                                      });
+                                      Navigator.pop(context);
+                                      listOfMapsToFirebase.clear();
+                                      orderCart.clear();
+                                      mealImages.clear();
+                                      mealSelector = 0;
+                                      pizzaCountInOrder = 0;
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: Text(
+                                      'לא',
+                                      textAlign: TextAlign.start,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
                               ),
-                              elevation: 3,
-                              actions: [
-                                FlatButton(
-                                  child: Text(
-                                    'כן',
-                                    textAlign: TextAlign.start,
-                                  ),
-                                  onPressed: () {
-                                    for (int i = 0; i < orderCart.length; i++) {
-                                      listOfMapsToFirebase
-                                          .add(orderCart[i].mealType);
-                                    }
-                                    try {
-                                      FireBase.addNewOrder(pizzaCountInOrder,
-                                          listOfMapsToFirebase);
-                                    } catch (e) {
-                                      ErrorMsg(
-                                        msg: e.toString(),
-                                      );
-                                    }
-                                    setState(() {
-                                      getAddons();
-                                    });
-                                    Navigator.pop(context);
-                                    listOfMapsToFirebase.clear();
-                                    orderCart.clear();
-                                    mealImages.clear();
-                                    mealSelector = 0;
-                                    pizzaCountInOrder = 0;
-                                  },
-                                ),
-                                FlatButton(
-                                  child: Text(
-                                    'לא',
-                                    textAlign: TextAlign.start,
-                                  ),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
+                            );
+                          }
+                          return showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                    elevation: 5,
+                                    title: Icon(
+                                      Icons.error_outline_sharp,
+                                      size: 30,
+                                    ),
+                                    content: Text(
+                                      'סל קניות ריק',
+                                      textDirection: TextDirection.rtl,
+                                    ),
+                                  ));
                         },
                       ),
                     );
                   }
                   return Text(
                     'חנות סגורה',
-                    style: kTextStyle,
+                    style: kTextStyle.copyWith(color: Colors.black),
                   );
                 },
               ),

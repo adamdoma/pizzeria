@@ -17,6 +17,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   double test = 0;
   double padding = 0;
+  double _height = 0;
+  double _width = 0;
 
   AnimationController controller;
   Animation anim;
@@ -26,14 +28,17 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     super.initState();
 
     controller = AnimationController(
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 4),
       vsync: this,
     );
-    anim = CurvedAnimation(parent: controller, curve: Curves.bounceIn);
-    controller.forward();
+    anim = CurvedAnimation(parent: controller, curve: Curves.elasticIn);
+    // controller.forward();
+    controller.repeat(
+        max: 0.94, min: 0.5, reverse: true, period: Duration(seconds: 1));
     controller.addListener(() {
       setState(() {
-        padding = controller.value * 300;
+        // padding = controller.value * 300;
+        padding = _width = _height = controller.value * 300;
       });
     });
 
@@ -54,15 +59,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           //TODO: להוסיף תמונה במקום שומר המקום
-          Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            width: MediaQuery.of(context).size.width,
-            child: AnimatedContainer(
-              duration: Duration(seconds: 2),
-              curve: Curves.ease,
-              padding: EdgeInsets.only(top: padding * 0.7),
+          Expanded(
+            flex: 3,
+            child: Center(
               child: Image.asset(
                 'img/pizza.png',
+                fit: BoxFit.contain,
+                width: _width,
+                height: _height,
               ),
             ),
           ),

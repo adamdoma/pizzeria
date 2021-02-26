@@ -89,7 +89,6 @@ class FireBase {
 
   static Future<bool> editUserNameAndLastName(
       String newName, String newLastName) async {
-    bool isOk = false;
     try {
       await FirebaseFirestore.instance
           .collection('user')
@@ -125,8 +124,9 @@ class FireBase {
   static void addNewUser(
       String email, String password, String firstName, String lastName) async {
     try {
-      final newUser = await FirebaseAuth.instance
+      UserCredential newUser = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
+      print(newUser.credential);
       if (newUser != null) {
         User theNewUser = FirebaseAuth.instance.currentUser;
         var tokin = await FirebaseMessaging().getToken();
