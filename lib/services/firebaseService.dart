@@ -85,6 +85,7 @@ class FireBase {
       'status': 0,
       'user_email': user.email
     });
+    //test
   }
 
   static Future<bool> editUserNameAndLastName(
