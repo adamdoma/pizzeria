@@ -8,6 +8,7 @@ import '../components/ErrorMSG.dart';
 import '../components/rounded_Button.dart';
 import '../models/meal.dart';
 import 'dart:math' as math;
+import '../services/paypalPayment.dart';
 
 class NewOrder extends StatefulWidget {
   @override
@@ -31,6 +32,15 @@ class _NewOrderState extends State<NewOrder> {
   void initState() {
     super.initState();
     getAddons();
+  }
+
+  Future<double> getPrice() async {
+    double orderCost = 0;
+    DocumentSnapshot ds = await FireBase.getPrices();
+    setState(() {
+      orderCost = ds.data()['p_price'] * pizzaCountInOrder;
+    });
+    return orderCost;
   }
 
   void getAddons() async {
@@ -176,43 +186,48 @@ class _NewOrderState extends State<NewOrder> {
               height: 10,
             ),
             Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                textDirection: TextDirection.rtl,
-                children: List.generate(mealImages.length, (index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        mealSelector = index;
-                      });
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      decoration: mealSelector == index
-                          ? BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(50),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      Colors.deepOrangeAccent.withOpacity(0.7),
-                                  spreadRadius: 6,
-                                  blurRadius: 10,
-                                  offset: Offset(
-                                      0, 0), // changes position of shadow
-                                ),
-                              ],
-                            )
-                          : BoxDecoration(
-                              color: Colors.transparent,
-                            ),
-                      child: ClipRRect(
-                        child: mealImages[index],
-                        borderRadius: BorderRadius.circular(50),
+              flex: 3,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  textDirection: TextDirection.rtl,
+                  children: List.generate(mealImages.length, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          mealSelector = index;
+                        });
+                      },
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                        decoration: mealSelector == index
+                            ? BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(40),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.deepOrangeAccent
+                                        .withOpacity(0.7),
+                                    spreadRadius: 6,
+                                    blurRadius: 10,
+                                    offset: Offset(
+                                        0, 0), // changes position of shadow
+                                  ),
+                                ],
+                              )
+                            : BoxDecoration(
+                                color: Colors.transparent,
+                              ),
+                        child: ClipRRect(
+                          child: mealImages[index],
+                          borderRadius: BorderRadius.circular(50),
+                        ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
             ),
             SizedBox(
@@ -297,7 +312,8 @@ class _NewOrderState extends State<NewOrder> {
                       padding: EdgeInsets.symmetric(vertical: 5),
                       child: RoundedButton(
                         text: 'הזמן',
-                        onTape: () {
+                        onTape: () async {
+                          double orderCost = await getPrice();
                           if (orderCart.isNotEmpty) {
                             showDialog(
                               context: context,
@@ -307,6 +323,12 @@ class _NewOrderState extends State<NewOrder> {
                                   'אישור הזמנה',
                                   textAlign: TextAlign.end,
                                 ),
+                                content: orderCost != 0
+                                    ? Text(
+                                        'כמות: $pizzaCountInOrder, מחיר: $orderCost',
+                                        textDirection: TextDirection.rtl,
+                                      )
+                                    : ('...'),
                                 elevation: 3,
                                 actions: [
                                   FlatButton(
@@ -314,30 +336,45 @@ class _NewOrderState extends State<NewOrder> {
                                       'כן',
                                       textAlign: TextAlign.start,
                                     ),
-                                    onPressed: () {
-                                      for (int i = 0;
-                                          i < orderCart.length;
-                                          i++) {
-                                        listOfMapsToFirebase
-                                            .add(orderCart[i].mealType);
-                                      }
-                                      try {
-                                        FireBase.addNewOrder(pizzaCountInOrder,
-                                            listOfMapsToFirebase);
-                                      } catch (e) {
-                                        ErrorMsg(
-                                          msg: e.toString(),
-                                        );
-                                      }
-                                      setState(() {
-                                        getAddons();
-                                      });
+                                    onPressed: () async {
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PaypalPayment(
+                                            totalAmount: orderCost,
+                                            itemName: 'פיצה בכפר',
+                                            quantity: pizzaCountInOrder,
+                                            onFinish: (number) {
+                                              if (number != null) {
+                                                for (int i = 0;
+                                                    i < orderCart.length;
+                                                    i++) {
+                                                  listOfMapsToFirebase.add(
+                                                      orderCart[i].mealType);
+                                                }
+                                                try {
+                                                  FireBase.addNewOrder(
+                                                      pizzaCountInOrder,
+                                                      listOfMapsToFirebase);
+                                                } catch (e) {
+                                                  ErrorMsg(
+                                                    msg: e.toString(),
+                                                  );
+                                                }
+                                                setState(() {
+                                                  getAddons();
+                                                });
+                                                listOfMapsToFirebase.clear();
+                                                orderCart.clear();
+                                                mealImages.clear();
+                                                mealSelector = 0;
+                                                pizzaCountInOrder = 0;
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      );
                                       Navigator.pop(context);
-                                      listOfMapsToFirebase.clear();
-                                      orderCart.clear();
-                                      mealImages.clear();
-                                      mealSelector = 0;
-                                      pizzaCountInOrder = 0;
                                     },
                                   ),
                                   FlatButton(
@@ -352,20 +389,22 @@ class _NewOrderState extends State<NewOrder> {
                                 ],
                               ),
                             );
-                          }
-                          return showDialog(
+                          } else {
+                            return showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
-                                    elevation: 5,
-                                    title: Icon(
-                                      Icons.error_outline_sharp,
-                                      size: 30,
-                                    ),
-                                    content: Text(
-                                      'סל קניות ריק',
-                                      textDirection: TextDirection.rtl,
-                                    ),
-                                  ));
+                                elevation: 5,
+                                title: Icon(
+                                  Icons.error_outline_sharp,
+                                  size: 30,
+                                ),
+                                content: Text(
+                                  'סל קניות ריק',
+                                  textDirection: TextDirection.rtl,
+                                ),
+                              ),
+                            );
+                          }
                         },
                       ),
                     );
@@ -541,42 +580,3 @@ class AddOns extends StatelessWidget {
     );
   }
 }
-
-//            Icon(
-//                Icons.trip_origin,
-//                size: MediaQuery.of(context).size.width * 0.4,
-//                color: Colors.green.withAlpha(90),
-//              )
-
-//            Icon(
-//                Icons.trip_origin,
-//                size: MediaQuery.of(context).size.width * 0.3,
-//                color: Colors.red.withAlpha(70),
-//              ),
-
-//GridView.count(
-//crossAxisSpacing: 10,
-//mainAxisSpacing: 10,
-//crossAxisCount: 2,
-//children: List.generate(addOnsKeyNames.length, (index) {
-//return Container(
-//decoration: kAddonContainerDecoration.copyWith(
-//borderRadius: BorderRadius.circular(40),
-//),
-//child: GestureDetector(
-//child: AddOns(
-//label: addOnsKeyNames[index],
-//isChecked: addOns[addOnsKeyNames[index]],
-//leftChecked: leftSide,
-//rightChecked: rightSide,
-//),
-//onTap: () {
-//setState(() {
-//addOns[addOnsKeyNames[index]] =
-//!addOns[addOnsKeyNames[index]];
-//});
-//},
-//),
-//);
-//}),
-//),

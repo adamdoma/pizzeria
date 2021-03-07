@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user.dart';
+import '../files/order_history_file.dart';
 
 class FireBase {
   static Users user;
@@ -77,6 +80,14 @@ class FireBase {
   }
 
   static void addNewOrder(double count, List<Map> addons) async {
+    OrderHistoryFile orderHistoryFile = new OrderHistoryFile();
+    Map<String, dynamic> map = {
+      'orderDate': DateTime.now().toString(),
+      'quantity': count,
+      'mealType': addons
+    };
+    String json = jsonEncode(map);
+    await orderHistoryFile.writeToFile(json);
     await FirebaseFirestore.instance.collection('active_orders').add({
       'completed': false,
       'meal_type': addons,
@@ -85,7 +96,6 @@ class FireBase {
       'status': 0,
       'user_email': user.email
     });
-    //test
   }
 
   static Future<bool> editUserNameAndLastName(

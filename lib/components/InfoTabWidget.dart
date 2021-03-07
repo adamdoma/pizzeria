@@ -21,7 +21,7 @@ class _OrderHistoryInfoTabWidgetState extends State<OrderHistoryInfoTabWidget>
     super.initState();
     controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2));
-    animation = CurvedAnimation(parent: controller, curve: Curves.ease);
+    animation = CurvedAnimation(parent: controller, curve: Curves.bounceIn);
     controller.repeat(min: 0, max: 1, reverse: true);
 
     controller.addListener(() {
@@ -43,6 +43,13 @@ class _OrderHistoryInfoTabWidgetState extends State<OrderHistoryInfoTabWidget>
         color: Colors.white,
         border: Border.all(color: Colors.black, width: animation.value * 3),
         borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.withOpacity(0.7),
+              offset: Offset(0, 3),
+              blurRadius: 7,
+              spreadRadius: 5),
+        ],
       ),
       child: Row(
         textDirection: TextDirection.rtl,

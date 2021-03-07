@@ -5,7 +5,7 @@ import 'package:pizzeria/screens/user_home_screen.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import '../components/rounded_Button.dart';
 import '../screens/registration_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/paypalServices.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static const String ID = 'welcome_screen';

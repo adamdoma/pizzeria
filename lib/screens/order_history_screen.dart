@@ -5,6 +5,7 @@ import 'package:pizzeria/consts.dart';
 import 'package:pizzeria/models/meal.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import '../components/InfoTabWidget.dart';
+import '../files/order_history_file.dart';
 
 class OrderHistory extends StatefulWidget {
   @override
@@ -15,37 +16,56 @@ class _OrderHistoryState extends State<OrderHistory> {
   List<Meal> mealList = new List();
   double colorIndex = 0.0;
   double drink, pizza;
+  OrderHistoryFile orderHistory = new OrderHistoryFile();
+  List<Map<String, dynamic>> orderListFromFile = [];
 
-  void initPirces() async {
+  void initPrices() async {
     DocumentSnapshot ds = await FireBase.getPrices();
     pizza = ds.data()['p_price'].toDouble();
     drink = ds.data()['drink_price'].toDouble();
   }
 
+  void initOrderHistoryFromFile() async {
+    await orderHistory.readOrderHistoryFile().then((value) {
+      setState(() {
+        orderListFromFile = value;
+      });
+    });
+  }
+
+  double get _trayCount {
+    double count = 0;
+    for (var i in orderListFromFile) {
+      count += i['quantity'];
+    }
+    return count;
+  }
+
   @override
   void initState() {
     super.initState();
-    UserOrderHistory();
-    initPirces();
+    // UserOrderHistory();
+    initPrices();
+    initOrderHistoryFromFile();
   }
 
-  void UserOrderHistory() async {
-    QuerySnapshot qs = await FireBase.getUserHistoryOrders();
-    for (var doc in qs.docs) {
-      setState(() {
-        mealList.add(new Meal(
-            userEmail: FireBase.user.email,
-            completed: doc.data()['completed'],
-            orderDate: doc.data()['order_date'].toDate(),
-            quantity: doc.data()['quantity'],
-            status: doc.data()['status']));
-      });
-    }
-  }
+  // void UserOrderHistory() async {
+  //   QuerySnapshot qs = await FireBase.getUserHistoryOrders();
+  //   for (var doc in qs.docs) {
+  //     setState(() {
+  //       mealList.add(new Meal(
+  //           userEmail: FireBase.user.email,
+  //           completed: doc.data()['completed'],
+  //           orderDate: doc.data()['order_date'].toDate(),
+  //           quantity: doc.data()['quantity'],
+  //           status: doc.data()['status']));
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    if (mealList.isEmpty) {
+    if (orderListFromFile.isEmpty || pizza == null) {
       return Center(
         child: Text('אין היסטוריה'),
       );
@@ -66,25 +86,27 @@ class _OrderHistoryState extends State<OrderHistory> {
               children: <Widget>[
                 Expanded(
                   child: ListView.builder(
-                    itemCount: mealList.length,
+                    itemCount: orderListFromFile.length,
                     itemBuilder: (context, index) {
                       return Container(
                         margin: EdgeInsets.only(top: 10),
                         child: Card(
-                            color: Colors.white70,
-                            elevation: 5,
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.check_box,
-                                color: Colors.white,
-                              ),
-                              title: Text(
-                                  'Date: ${mealList[index].orderDate.day}/${mealList[index].orderDate.month}/${mealList[index].orderDate.year}'),
-                              subtitle:
-                                  Text('Quantity: ${mealList[index].quantity}'),
-                              trailing:
-                                  Text('${mealList[index].quantity * pizza}'),
-                            )),
+                          color: Colors.white70,
+                          elevation: 5,
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.check_box,
+                              color: Colors.white,
+                            ),
+                            title: Text(
+                                'Date: ${orderListFromFile[index]['orderDate'].day}/${orderListFromFile[index]['orderDate'].month}/${orderListFromFile[index]['orderDate'].year}'),
+                            subtitle: Text(
+                                'Quantity: ${orderListFromFile[index]['quantity']}'),
+                            trailing: Text(
+                              '${orderListFromFile[index]['quantity'] * pizza}',
+                            ),
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -97,9 +119,12 @@ class _OrderHistoryState extends State<OrderHistory> {
             right: 10,
             height: 30,
             width: MediaQuery.of(context).size.width / 3,
-            child: OrderHistoryInfoTabWidget(
-              number: mealList.length.toDouble(),
-              lbl: "כמות הזמנות",
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: OrderHistoryInfoTabWidget(
+                number: _trayCount,
+                lbl: "כמות הזמנות",
+              ),
             ),
           ),
           Positioned(
@@ -107,9 +132,12 @@ class _OrderHistoryState extends State<OrderHistory> {
               left: 10,
               height: 30,
               width: MediaQuery.of(context).size.width / 3,
-              child: OrderHistoryInfoTabWidget(
-                number: mealList.length.toDouble() * pizza.toDouble(),
-                lbl: '\u20AA',
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: OrderHistoryInfoTabWidget(
+                  number: _trayCount * pizza.toDouble(),
+                  lbl: '\u20AA',
+                ),
               )),
         ],
       );
