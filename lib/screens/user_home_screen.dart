@@ -24,6 +24,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   final _auth = FirebaseAuth.instance;
   User loggedUser;
   Users user;
+  int cart = Meal.mealList.length;
 
   TabController _tabController;
 
@@ -31,16 +32,18 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   bool dropDownUpdatesFromSeller = false;
 
   final List<Widget> myList = [
-    NewOrder(),
+    NewOrder(updateCart: null),
     OrderHistory(),
     UserSettings(),
   ];
 
   int tabIndex = 0;
-  //
-  // Future<void> Tokin() async {
-  //   var tokin = await FirebaseMessaging().getToken();
-  // }
+
+  refreshCart() {
+    setState(() {
+      cart = Meal.mealList.length;
+    });
+  }
 
   @override
   void initState() {
@@ -108,7 +111,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
                     shape: BoxShape.circle, color: Colors.red.withOpacity(0.7)),
                 child: Center(
                   child: Text(
-                    '${Meal.meals.length}',
+                    '$cart',
                     style: TextStyle(color: Colors.white, fontSize: 15),
                   ),
                 ),
@@ -193,12 +196,15 @@ class _UserHomeScreenState extends State<UserHomeScreen>
               flex: 5,
               child: Container(
                 padding: EdgeInsets.all(10),
-                child: myList[tabIndex],
+                child: tabIndex == 0
+                    ? NewOrder(updateCart: refreshCart)
+                    : myList[tabIndex],
               ),
             ),
             TabBar(
               onTap: (val) {
                 setState(() {
+                  cart = 0;
                   tabIndex = val;
                 });
               },

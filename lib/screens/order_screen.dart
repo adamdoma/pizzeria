@@ -11,11 +11,15 @@ import 'package:pizzeria/models/meal.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 
 class NewOrder extends StatefulWidget {
+  Function updateCart;
+  NewOrder({@required this.updateCart});
   @override
-  _NewOrderState createState() => _NewOrderState();
+  _NewOrderState createState() => _NewOrderState(updateCart: updateCart);
 }
 
 class _NewOrderState extends State<NewOrder> {
+  Function updateCart;
+  _NewOrderState({this.updateCart});
   PageController pageController;
   double viewportFraction = 0.8;
   double pageOffset = 0;
@@ -111,7 +115,7 @@ class _NewOrderState extends State<NewOrder> {
                   );
                   setState(() {
                     Meal.meals.removeAt(pageNum);
-                    // pageController.page.
+                    updateCart();
                   });
                 }),
             FloatingActionButton(
@@ -133,9 +137,8 @@ class _NewOrderState extends State<NewOrder> {
                     mealType: addOn,
                   ),
                 );
-                setState(() {
-                  Meal.meals.length;
-                });
+                setState(() {});
+                updateCart();
               },
             ),
             StreamBuilder<QuerySnapshot>(
