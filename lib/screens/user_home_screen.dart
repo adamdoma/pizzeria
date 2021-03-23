@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:pizzeria/consts.dart';
+import 'package:pizzeria/models/meal.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user.dart';
@@ -90,9 +91,31 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: spinner == true
-            ? Text('')
-            : Text('Welcome Back ${user.getFirstName().toUpperCase()}'),
+        title: Stack(
+          overflow: Overflow.visible,
+          children: [
+            Icon(
+              Icons.shopping_cart_rounded,
+              size: 30,
+            ),
+            Positioned(
+              top: -10,
+              right: -2,
+              child: Container(
+                height: 20,
+                width: 20,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle, color: Colors.red.withOpacity(0.7)),
+                child: Center(
+                  child: Text(
+                    '${Meal.meals.length}',
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
         elevation: 3,
         actions: [
           FlatButton(

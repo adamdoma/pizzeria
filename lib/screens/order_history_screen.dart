@@ -26,11 +26,8 @@ class _OrderHistoryState extends State<OrderHistory> {
   }
 
   void initOrderHistoryFromFile() async {
-    await orderHistory.readOrderHistoryFile().then((value) {
-      setState(() {
-        orderListFromFile = value;
-      });
-    });
+    orderListFromFile = await orderHistory.readOrderHistoryFile();
+    setState(() {});
   }
 
   double get _trayCount {
