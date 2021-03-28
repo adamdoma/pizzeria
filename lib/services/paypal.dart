@@ -41,7 +41,7 @@ class Paypal {
     List items = [
       {
         "name": itemName,
-        "quantity": quantity,
+        "quantity": 1,
         "price": itemPrice,
         "currency": _defaultCurrency["currency"]
       }

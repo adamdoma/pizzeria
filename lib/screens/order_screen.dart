@@ -4,11 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pizzeria/components/ErrorMSG.dart';
 import 'package:pizzeria/components/flip_card_widget.dart';
 import 'package:pizzeria/consts.dart';
 import 'package:pizzeria/models/meal.dart';
 import 'package:pizzeria/services/firebaseService.dart';
+import 'package:pizzeria/services/paypalPayment.dart';
 
 class NewOrder extends StatefulWidget {
   Function updateCart;
@@ -24,6 +24,7 @@ class _NewOrderState extends State<NewOrder> {
   double viewportFraction = 0.8;
   double pageOffset = 0;
   double count = 0.0;
+  final double pizzaPrice = 40.0;
   var key = GlobalKey();
 
   @override
@@ -33,9 +34,11 @@ class _NewOrderState extends State<NewOrder> {
     pageController =
         PageController(initialPage: 0, viewportFraction: viewportFraction)
           ..addListener(() {
-            setState(() {
-              pageOffset = pageController.page;
-            });
+            if (!mounted) {
+              setState(() {
+                pageOffset = pageController.page;
+              });
+            }
           });
     print(Meal.mealList);
   }
@@ -44,6 +47,14 @@ class _NewOrderState extends State<NewOrder> {
   void deactivate() {
     Meal.meals = [];
     super.deactivate();
+  }
+
+  double getMealCount() {
+    double ans = 0;
+    for (var index in Meal.meals) {
+      ans += index.quantity;
+    }
+    return ans;
   }
 
   @override
@@ -177,25 +188,120 @@ class _NewOrderState extends State<NewOrder> {
                           );
                         }
                       : () {
-                          showDialog(
-                              context: context,
-                              builder: (_) => Hero(
-                                    transitionOnUserGestures: true,
-                                    tag: 'cart',
-                                    child: AlertDialog(
-                                      content: Container(),
-                                    ),
-                                  ));
                           if (Meal.meals.isNotEmpty) {
-                            double orderCount = 0.0;
-                            List<Map<String, dynamic>> tempList = [];
-                            for (var i in Meal.meals) {
-                              tempList.add(i.mealType);
-                              orderCount += i.quantity;
-                            }
-                            print('$orderCount');
-                            print('----------------------');
-                            print(tempList);
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                actions: [
+                                  FlatButton.icon(
+                                    onPressed: () async {
+                                      var response = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PaypalPayment(
+                                            itemName: 'פיצה בכפר',
+                                            // quantity: 1,
+                                            totalAmount:
+                                                getMealCount() * pizzaPrice,
+                                            onFinish: (number) {
+                                              if (number != 0) {
+                                                print('$number');
+                                                Navigator.pop(context, 'ok');
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                      Meal.meals.clear();
+                                      updateCart();
+                                      if (!mounted) {
+                                        setState(() {});
+                                      }
+                                    },
+                                    icon: Icon(Icons.check),
+                                    label: Text('הזמן'),
+                                  ),
+                                  FlatButton.icon(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      icon: Icon(Icons.cancel_outlined),
+                                      label: Text('בטל'))
+                                ],
+                                content: Container(
+                                  height: 250,
+                                  width: 250,
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.payment,
+                                        color: Colors.blue,
+                                        size: 30,
+                                      ),
+                                      Container(
+                                        height: 200,
+                                        width: 250,
+                                        child: Card(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text(
+                                                'פרטי הזמנה',
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                              Text(
+                                                'מייל:',
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                              ),
+                                              Center(
+                                                child: Text(
+                                                    '${FireBase.user.email}'),
+                                              ),
+                                              Text(
+                                                'שם:',
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                              ),
+                                              Center(
+                                                child: Text(
+                                                  '${FireBase.user.firstName}, ${FireBase.user.lastName}',
+                                                ),
+                                              ),
+                                              Text(
+                                                'תאריך:',
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                              ),
+                                              Center(
+                                                child: Text(
+                                                    '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}'),
+                                              ),
+                                              Text(
+                                                'כמות:',
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                              ),
+                                              Center(
+                                                  child: Text(
+                                                      '${getMealCount()}')),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
                           }
                         },
                 );
@@ -223,11 +329,15 @@ class _NewOrderState extends State<NewOrder> {
 // import '../services/paypalPayment.dart';
 //
 // class NewOrder extends StatefulWidget {
+//   Function updateCart;
+//   NewOrder({@required this.updateCart});
 //   @override
-//   _NewOrderState createState() => _NewOrderState();
+//   _NewOrderState createState() => _NewOrderState(updateCart: updateCart);
 // }
 //
 // class _NewOrderState extends State<NewOrder> {
+//   Function updateCart;
+//   _NewOrderState({this.updateCart});
 //   Users stateUser = FireBase.user;
 //
 //   Map<String, dynamic> addOns;

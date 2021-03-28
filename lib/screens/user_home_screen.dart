@@ -25,6 +25,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   User loggedUser;
   Users user;
   int cart = Meal.mealList.length;
+  final GlobalKey<ScaffoldState> _scafffoldKey = GlobalKey<ScaffoldState>();
 
   TabController _tabController;
 
@@ -49,7 +50,6 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: 3);
-    // Tokin();
     getCurrentUser();
     final fbm = FirebaseMessaging();
     fbm.configure(onMessage: (msg) {
@@ -93,6 +93,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scafffoldKey,
       appBar: AppBar(
         title: Stack(
           overflow: Overflow.visible,

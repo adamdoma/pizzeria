@@ -38,6 +38,7 @@ class PaypalServices {
           'Authorization': 'Bearer ' + accessToken
         },
       );
+      print(response.statusCode);
       final body = convert.jsonDecode(response.body);
       if (response.statusCode == 201) {
         if (body["links"] != null && body["links"].length > 0) {

@@ -15,7 +15,7 @@ class OrderHistory extends StatefulWidget {
 class _OrderHistoryState extends State<OrderHistory> {
   List<Meal> mealList = new List();
   double colorIndex = 0.0;
-  double drink, pizza;
+  double drink, pizza = 0.0;
   OrderHistoryFile orderHistory = new OrderHistoryFile();
   List<Map<String, dynamic>> orderListFromFile = [];
 
@@ -23,6 +23,7 @@ class _OrderHistoryState extends State<OrderHistory> {
     DocumentSnapshot ds = await FireBase.getPrices();
     pizza = ds.data()['p_price'].toDouble();
     drink = ds.data()['drink_price'].toDouble();
+    setState(() {});
   }
 
   void initOrderHistoryFromFile() async {
@@ -62,7 +63,7 @@ class _OrderHistoryState extends State<OrderHistory> {
 
   @override
   Widget build(BuildContext context) {
-    if (orderListFromFile.isEmpty || pizza == null) {
+    if (orderListFromFile.isEmpty) {
       return Center(
         child: Text('אין היסטוריה'),
       );
@@ -82,32 +83,31 @@ class _OrderHistoryState extends State<OrderHistory> {
             child: Column(
               children: <Widget>[
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: orderListFromFile.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: EdgeInsets.only(top: 10),
-                        child: Card(
-                          color: Colors.white70,
-                          elevation: 5,
-                          child: ListTile(
-                            leading: Icon(
-                              Icons.check_box,
-                              color: Colors.white,
-                            ),
-                            title: Text(
-                                'Date: ${orderListFromFile[index]['orderDate'].day}/${orderListFromFile[index]['orderDate'].month}/${orderListFromFile[index]['orderDate'].year}'),
-                            subtitle: Text(
-                                'Quantity: ${orderListFromFile[index]['quantity']}'),
-                            trailing: Text(
-                              '${orderListFromFile[index]['quantity'] * pizza}',
-                            ),
+                    child: ListView.builder(
+                  itemCount: orderListFromFile.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: EdgeInsets.only(top: 10),
+                      child: Card(
+                        color: Colors.white70,
+                        elevation: 5,
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.check_box,
+                            color: Colors.white,
+                          ),
+                          title: Text(
+                              'Date: ${orderListFromFile[index]['orderDate'].day}/${orderListFromFile[index]['orderDate'].month}/${orderListFromFile[index]['orderDate'].year}'),
+                          subtitle: Text(
+                              'Quantity: ${orderListFromFile[index]['quantity']}'),
+                          trailing: Text(
+                            '${orderListFromFile[index]['quantity'] * pizza}',
                           ),
                         ),
-                      );
-                    },
-                  ),
-                )
+                      ),
+                    );
+                  },
+                ))
               ],
             ),
           ),
