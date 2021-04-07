@@ -25,7 +25,6 @@ class _NewOrderState extends State<NewOrder> {
   double pageOffset = 0;
   double count = 0.0;
   final double pizzaPrice = 40.0;
-  var key = GlobalKey();
 
   @override
   void initState() {
@@ -34,19 +33,17 @@ class _NewOrderState extends State<NewOrder> {
     pageController =
         PageController(initialPage: 0, viewportFraction: viewportFraction)
           ..addListener(() {
-            if (!mounted) {
-              setState(() {
-                pageOffset = pageController.page;
-              });
-            }
+            setState(() {
+              pageOffset = pageController.page;
+            });
           });
     print(Meal.mealList);
   }
 
   @override
-  void deactivate() {
+  void dispose() {
     Meal.meals = [];
-    super.deactivate();
+    super.dispose();
   }
 
   double getMealCount() {
@@ -55,6 +52,100 @@ class _NewOrderState extends State<NewOrder> {
       ans += index.quantity;
     }
     return ans;
+  }
+
+  SnackBar snackBarMessage(String msg, Icon icon) {
+    return SnackBar(
+      content: (Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          icon,
+          SizedBox(
+            width: 10,
+          ),
+          Text(
+            '$msg',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ],
+      )),
+    );
+  }
+
+  void orderToFirebase() async {
+    List<Map> order = [];
+    List<Map> halfQuantitiy = [];
+    double count = 0;
+    int side = 2; //2 - right side , 3 - left Side of the tray
+    List<String> keyNames = Meal.meals[0].mealType.keys.toList();
+    for (var meal in Meal.meals) {
+      if (meal.quantity % 1 != 0) {
+        if (side == 2) {
+          for (var i in keyNames) {
+            if (meal.mealType[i] != 0) {
+              meal.mealType[i] = side;
+            }
+          }
+          side = 3;
+        } else if (side == 3) {
+          for (var i in keyNames) {
+            if (meal.mealType[i] != 0) {
+              meal.mealType[i] = side;
+            }
+          }
+          side = 2;
+        }
+        halfQuantitiy.add(meal.mealType);
+      } else {
+        for (var i in keyNames) {
+          if (meal.mealType[i] != 0) {
+            meal.mealType[i] = 1;
+          }
+        }
+        order.add(meal.mealType);
+      }
+      count += meal.quantity;
+    }
+    // קיבוץ חצאי הזמנות
+    //if length is 1
+    if (halfQuantitiy.length == 1) {
+      order.add(halfQuantitiy.first);
+    }
+    if (halfQuantitiy.length > 1) {
+      Map<String, dynamic> temp = {};
+      // לבדוק אם יש בחירה בתוספים ולהכניס אותם לשימה הגדולה עם בחירת צד נכונה
+      int stopPoint = halfQuantitiy.length % 2 == 0
+          ? halfQuantitiy.length
+          : halfQuantitiy.length - 1;
+      for (int i = 0; i <= stopPoint / 2; i += 2) {
+        temp = {};
+        for (var key in keyNames) {
+          //אם שניהם נבחרו
+          if (halfQuantitiy[i][key] != 0 && halfQuantitiy[i + 1][key] != 0) {
+            // halfQuantitiy[i][key] = 1;
+            temp['$key'] = 1;
+          }
+          //אחד נבחר
+          else if ((halfQuantitiy[i][key] == 0 &&
+                  halfQuantitiy[i + 1][key] != 0) ||
+              (halfQuantitiy[i][key] != 0 && halfQuantitiy[i + 1][key] == 0)) {
+            if (halfQuantitiy[i][key] > halfQuantitiy[i + 1][key]) {
+              temp['$key'] = halfQuantitiy[i][key];
+            } else {
+              temp['$key'] = halfQuantitiy[i + 1][key];
+            }
+          } else {
+            temp['$key'] = 0;
+          }
+        }
+        order.add(temp);
+      }
+    }
+    //הוספת האיבר האחרון במידה ואורך העגלה אינו זוגי
+    if (halfQuantitiy.length % 2 != 0 && halfQuantitiy.length != 1) {
+      order.add(halfQuantitiy.last);
+    }
+    FireBase.addNewOrder(count, order);
   }
 
   @override
@@ -74,7 +165,6 @@ class _NewOrderState extends State<NewOrder> {
                     ),
         ),
         Expanded(
-          key: key,
           flex: 10,
           child: PageView.builder(
               controller: pageController,
@@ -87,22 +177,19 @@ class _NewOrderState extends State<NewOrder> {
                   angle = 1 - angle;
                 }
 
-                return Hero(
-                  tag: 'cart',
-                  child: Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.only(
-                        right: 10, left: 5, top: 20 - scale * 2, bottom: 5),
-                    color: Color.fromRGBO(247, 247, 247, 1),
-                    child: Transform(
-                      transform: Matrix4.identity()
-                        ..setEntry(3, 2, 0.001)
-                        ..rotateY(angle),
-                      alignment: Alignment.center,
-                      child: FlipCardWidget(
-                        trayNum: index,
-                      ),
+                return Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.only(
+                      right: 10, left: 5, top: 20 - scale * 2, bottom: 5),
+                  color: Color.fromRGBO(247, 247, 247, 1),
+                  child: Transform(
+                    transform: Matrix4.identity()
+                      ..setEntry(3, 2, 0.001)
+                      ..rotateY(angle),
+                    alignment: Alignment.center,
+                    child: FlipCardWidget(
+                      trayNum: index,
                     ),
                   ),
                 );
@@ -189,29 +276,52 @@ class _NewOrderState extends State<NewOrder> {
                         }
                       : () {
                           if (Meal.meals.isNotEmpty) {
+                            bool success = false;
                             showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
                                 actions: [
                                   FlatButton.icon(
                                     onPressed: () async {
-                                      var response = await Navigator.push(
+                                      success = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => PaypalPayment(
                                             itemName: 'פיצה בכפר',
-                                            // quantity: 1,
                                             totalAmount:
                                                 getMealCount() * pizzaPrice,
                                             onFinish: (number) {
                                               if (number != 0) {
-                                                print('$number');
-                                                Navigator.pop(context, 'ok');
+                                                Navigator.pop(context, true);
                                               }
                                             },
                                           ),
                                         ),
                                       );
+                                      if (success) {
+                                        Scaffold.of(context).showSnackBar(
+                                          snackBarMessage(
+                                              'שולם בהצלחה',
+                                              Icon(
+                                                Icons.check,
+                                                size: 25,
+                                                color: Colors.green,
+                                              )),
+                                        );
+                                        orderToFirebase();
+                                      } else {
+                                        Scaffold.of(context).showSnackBar(
+                                          snackBarMessage(
+                                            'בעיית תשלום- לא בוצע חיוב',
+                                            Icon(
+                                              Icons.clear,
+                                              size: 25,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      Navigator.pop(context);
                                       Meal.meals.clear();
                                       updateCart();
                                       if (!mounted) {

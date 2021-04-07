@@ -19,7 +19,7 @@ class PaypalPayment extends StatefulWidget {
 }
 
 class PaypalPaymentState extends State<PaypalPayment> {
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   String checkoutUrl;
   String executeUrl;
   String accessToken;
@@ -65,6 +65,12 @@ class PaypalPaymentState extends State<PaypalPayment> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (checkoutUrl != null) {
       return Scaffold(
@@ -88,12 +94,12 @@ class PaypalPaymentState extends State<PaypalPayment> {
                     .executePayment(executeUrl, payerID, accessToken)
                     .then((id) {
                   widget.onFinish(id);
-                  Navigator.of(context).pop();
+                  // Navigator.of(context).pop();
                 });
               } else {
-                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
               }
-              Navigator.of(context).pop();
+              // Navigator.of(context).pop();
             }
             if (request.url.contains(paypal.cancelUrl)) {
               Navigator.of(context).pop();

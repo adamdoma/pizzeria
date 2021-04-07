@@ -112,10 +112,6 @@ class _FlipCardWidgetState extends State<FlipCardWidget> {
                 }
                 setState(() {});
               },
-              // child: Image.asset(
-              //   'img/olive.jpg',
-              //   fit: BoxFit.contain,
-              // ),
               child: Stack(
                 children: [
                   AnimatedContainer(
@@ -127,11 +123,11 @@ class _FlipCardWidgetState extends State<FlipCardWidget> {
                       boxShadow: [
                         BoxShadow(
                           color: isSelected
-                              ? Colors.blueGrey.shade700
+                              ? Colors.greenAccent.shade200
                               : Colors.grey.shade700,
                           spreadRadius: 3,
                           blurRadius: 5,
-                          offset: isSelected ? Offset(-5, 7) : Offset(5, 7),
+                          offset: Offset(5, 2),
                         ),
                       ],
                     ),
@@ -145,11 +141,7 @@ class _FlipCardWidgetState extends State<FlipCardWidget> {
                   Positioned(
                     bottom: 10,
                     left: 20,
-                    child: Checkbox(
-                        value: isSelected,
-                        onChanged: (val) {
-                          print(val);
-                        }),
+                    child: Checkbox(value: isSelected, onChanged: (val) {}),
                   )
                 ],
               ),
@@ -202,6 +194,11 @@ class _FlipCardWidgetState extends State<FlipCardWidget> {
   void initState() {
     _isFlipped = false;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   build(BuildContext context) {
