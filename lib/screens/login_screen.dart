@@ -58,7 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 30,
                   ),
                   FloatingActionButton(
-                    child: Text('GO'),
+                    heroTag: null,
+                    child: Text('כניסה'),
                     elevation: 5,
                     onPressed: () async {
                       setState(() {

@@ -93,7 +93,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scafffoldKey,
+      // key: _scafffoldKey,
       appBar: AppBar(
         title: Stack(
           overflow: Overflow.visible,

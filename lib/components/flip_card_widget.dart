@@ -54,7 +54,7 @@ class _FlipCardWidgetState extends State<FlipCardWidget> {
             curve: Curves.bounceOut,
             margin: EdgeInsets.only(top: 10),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
+              borderRadius: BorderRadius.circular(700),
               clipBehavior: Clip.antiAlias,
               child: Image.asset(
                 'img/onFull.jpg',

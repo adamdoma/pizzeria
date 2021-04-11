@@ -178,8 +178,8 @@ class _NewOrderState extends State<NewOrder> {
                 }
 
                 return Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  width: MediaQuery.of(context).size.width * 0.8,
                   padding: EdgeInsets.only(
                       right: 10, left: 5, top: 20 - scale * 2, bottom: 5),
                   color: Color.fromRGBO(247, 247, 247, 1),
@@ -199,6 +199,7 @@ class _NewOrderState extends State<NewOrder> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             FloatingActionButton(
+                heroTag: null,
                 backgroundColor: Colors.white,
                 child: Icon(
                   Icons.delete,
@@ -217,6 +218,7 @@ class _NewOrderState extends State<NewOrder> {
                   });
                 }),
             FloatingActionButton(
+              heroTag: null,
               backgroundColor: Colors.white,
               child: Icon(
                 Icons.add,
@@ -252,6 +254,7 @@ class _NewOrderState extends State<NewOrder> {
                 }
 
                 return FloatingActionButton(
+                  heroTag: null,
                   backgroundColor: storeOpenClose ? Colors.blue : Colors.grey,
                   child: Icon(Icons.send_rounded),
                   onPressed: !storeOpenClose
@@ -276,7 +279,7 @@ class _NewOrderState extends State<NewOrder> {
                         }
                       : () {
                           if (Meal.meals.isNotEmpty) {
-                            bool success = false;
+                            var success;
                             showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
@@ -298,7 +301,7 @@ class _NewOrderState extends State<NewOrder> {
                                           ),
                                         ),
                                       );
-                                      if (success) {
+                                      if (success != null && success) {
                                         Scaffold.of(context).showSnackBar(
                                           snackBarMessage(
                                               'שולם בהצלחה',

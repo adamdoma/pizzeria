@@ -47,6 +47,8 @@ class OrderHistoryFile {
         };
         orderList.add(map);
       }
+    }).catchError((e) {
+      print('There is no file saved - Error from Order history file\n $e');
     });
     return orderList;
   }
