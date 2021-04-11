@@ -20,7 +20,11 @@ class _PizzeriaState extends State<Pizzeria> {
       future: Firebase.initializeApp(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(child: Container(child: Text('error')));
+          return Center(
+            child: Container(
+              child: Text('error'),
+            ),
+          );
         }
         if (snapshot.connectionState == ConnectionState.done) {
           return MaterialApp(

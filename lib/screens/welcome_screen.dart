@@ -5,7 +5,6 @@ import 'package:pizzeria/screens/user_home_screen.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import '../components/rounded_Button.dart';
 import '../screens/registration_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static const String ID = 'welcome_screen';
@@ -26,7 +25,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   void initState() {
     super.initState();
-
     controller = AnimationController(
       duration: Duration(seconds: 4),
       vsync: this,

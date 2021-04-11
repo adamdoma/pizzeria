@@ -94,17 +94,16 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
                 userEmail: order.data()['user_email']);
             if (order.data()['status'] <= 2) {
               return (Container(
-                child: Card(
-                  elevation: 3,
-                  child: ListTile(
-                      isThreeLine: true,
-                      title: Text(
-                          '${activeMeal.orderDate.day}/${activeMeal.orderDate.month}/${activeMeal.orderDate.year}'),
-                      subtitle: Text('${stateMsg[activeMeal.status]}'),
-                      trailing: orderStatus(
-                        status: activeMeal.status,
-                      )),
-                ),
+                height: 20,
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: ListTile(
+                    isThreeLine: true,
+                    title: Text(
+                        '${activeMeal.orderDate.day}/${activeMeal.orderDate.month}/${activeMeal.orderDate.year}'),
+                    subtitle: Text('${stateMsg[activeMeal.status]}'),
+                    trailing: orderStatus(
+                      status: activeMeal.status,
+                    )),
               ));
             } else {
               return Container(
@@ -122,5 +121,3 @@ class _UpdateFromSellerState extends State<UpdateFromSeller> {
     );
   }
 }
-
-

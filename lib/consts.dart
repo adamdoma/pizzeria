@@ -51,10 +51,10 @@ const kAddonContainerDecoration = BoxDecoration(
 const kTextStyle =
     TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 20);
 
-const kLinearColorsContainer = LinearGradient(
-    colors: [Colors.blueAccent, Colors.black],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight);
+const kLinearColorsContainer = LinearGradient(colors: [
+  Color.fromRGBO(21, 186, 232, 0.9),
+  Color.fromRGBO(21, 186, 232, 0.1)
+], begin: Alignment.topLeft, end: Alignment.bottomRight);
 
 List<Color> kDividerColors = [
   Colors.white,

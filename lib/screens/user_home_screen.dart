@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:pizzeria/consts.dart';
+import 'package:pizzeria/models/meal.dart';
 import 'package:pizzeria/services/firebaseService.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user.dart';
@@ -23,6 +24,8 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   final _auth = FirebaseAuth.instance;
   User loggedUser;
   Users user;
+  int cart = Meal.mealList.length;
+  final GlobalKey<ScaffoldState> _scafffoldKey = GlobalKey<ScaffoldState>();
 
   TabController _tabController;
 
@@ -30,22 +33,23 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   bool dropDownUpdatesFromSeller = false;
 
   final List<Widget> myList = [
-    NewOrder(),
+    NewOrder(updateCart: null),
     OrderHistory(),
     UserSettings(),
   ];
 
   int tabIndex = 0;
-  //
-  // Future<void> Tokin() async {
-  //   var tokin = await FirebaseMessaging().getToken();
-  // }
+
+  refreshCart() {
+    setState(() {
+      cart = Meal.mealList.length;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: 3);
-    // Tokin();
     getCurrentUser();
     final fbm = FirebaseMessaging();
     fbm.configure(onMessage: (msg) {
@@ -89,10 +93,33 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // key: _scafffoldKey,
       appBar: AppBar(
-        title: spinner == true
-            ? Text('')
-            : Text('Welcome Back ${user.getFirstName().toUpperCase()}'),
+        title: Stack(
+          overflow: Overflow.visible,
+          children: [
+            Icon(
+              Icons.shopping_cart_rounded,
+              size: 30,
+            ),
+            Positioned(
+              top: -10,
+              right: -2,
+              child: Container(
+                height: 20,
+                width: 20,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle, color: Colors.red.withOpacity(0.7)),
+                child: Center(
+                  child: Text(
+                    '$cart',
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
         elevation: 3,
         actions: [
           FlatButton(
@@ -170,12 +197,15 @@ class _UserHomeScreenState extends State<UserHomeScreen>
               flex: 5,
               child: Container(
                 padding: EdgeInsets.all(10),
-                child: myList[tabIndex],
+                child: tabIndex == 0
+                    ? NewOrder(updateCart: refreshCart)
+                    : myList[tabIndex],
               ),
             ),
             TabBar(
               onTap: (val) {
                 setState(() {
+                  cart = 0;
                   tabIndex = val;
                 });
               },
