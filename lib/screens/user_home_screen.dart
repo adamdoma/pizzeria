@@ -25,7 +25,6 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   User loggedUser;
   Users user;
   int cart = Meal.mealList.length;
-  final GlobalKey<ScaffoldState> _scafffoldKey = GlobalKey<ScaffoldState>();
 
   TabController _tabController;
 
