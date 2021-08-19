@@ -30,7 +30,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       vsync: this,
     );
     anim = CurvedAnimation(parent: controller, curve: Curves.elasticIn);
-    // controller.forward();
     controller.repeat(
         max: 0.94, min: 0.5, reverse: true, period: Duration(seconds: 1));
     controller.addListener(() {

@@ -12,7 +12,8 @@ class TextFieldEmail extends StatelessWidget {
     return TextField(
       textAlign: TextAlign.center,
       keyboardType: TextInputType.emailAddress,
-      decoration: kTextFieldDecoration.copyWith(hintText: hint),
+      decoration:
+          kTextFieldDecoration.copyWith(hintText: hint, labelText: hint),
       onChanged: onTape,
     );
   }

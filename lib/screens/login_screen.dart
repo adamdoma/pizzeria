@@ -17,6 +17,35 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool spinner = false;
   String email, password;
+
+  void userAuthentication() async {
+    setState(() {
+      spinner = true;
+    });
+
+    try {
+      final toLogUser = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      if (toLogUser != null) {
+        Navigator.popAndPushNamed(context, UserHomeScreen.ID);
+      }
+      setState(() {
+        spinner = false;
+      });
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (_) => ErrorMsg(
+          msg: 'Email/Password incorrect',
+        ),
+        barrierDismissible: true,
+      );
+      setState(() {
+        spinner = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,74 +53,45 @@ class _LoginScreenState extends State<LoginScreen> {
       body: ModalProgressHUD(
         inAsyncCall: spinner,
         child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(
-                    Icons.account_circle,
-                    size: 90,
-                    color: Colors.blueAccent,
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  TextFieldEmail(
-                    hint: 'Enter Email',
-                    onTape: (val) {
-                      email = val;
-                    },
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  TextFieldPassword(
-                    hint: 'Password',
-                    onTape: (val) {
-                      password = val;
-                    },
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  FloatingActionButton(
-                    heroTag: null,
-                    child: Text('כניסה'),
-                    elevation: 5,
-                    onPressed: () async {
-                      setState(() {
-                        spinner = true;
-                      });
-
-                      try {
-                        final toLogUser =
-                            await _auth.signInWithEmailAndPassword(
-                                email: email, password: password);
-                        if (toLogUser != null) {
-                          Navigator.popAndPushNamed(context, UserHomeScreen.ID);
-                        }
-                        setState(() {
-                          spinner = false;
-                        });
-                      } catch (e) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => ErrorMsg(
-                            msg: 'Email/Password incorrect',
-                          ),
-                          barrierDismissible: true,
-                        );
-                        setState(() {
-                          spinner = false;
-                        });
-                      }
-                    },
-                  )
-                ],
-              ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Icon(
+                  Icons.account_circle,
+                  size: 90,
+                  color: Colors.blueAccent,
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                TextFieldEmail(
+                  hint: 'Enter Email',
+                  onTape: (val) {
+                    email = val;
+                  },
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                TextFieldPassword(
+                  hint: 'Password',
+                  onTape: (val) {
+                    password = val;
+                  },
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                FloatingActionButton(
+                  heroTag: null,
+                  child: Text('כניסה'),
+                  elevation: 5,
+                  onPressed: userAuthentication,
+                )
+              ],
             ),
           ),
         ),

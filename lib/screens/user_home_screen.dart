@@ -63,6 +63,22 @@ class _UserHomeScreenState extends State<UserHomeScreen>
     });
   }
 
+  void signOut() {
+    try {
+      FireBase.clearForLogout();
+      _auth.signOut();
+      Navigator.pop(context);
+    } catch (e) {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => ErrorMsg(
+          msg: 'שגיאת התנתקות',
+        ),
+      );
+    }
+  }
+
   void getCurrentUser() async {
     setState(() {
       spinner = true;
@@ -92,7 +108,6 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // key: _scafffoldKey,
       appBar: AppBar(
         title: Stack(
           overflow: Overflow.visible,
@@ -126,20 +141,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
               'logout',
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: () {
-              try {
-                FireBase.clearForLogout();
-                _auth.signOut();
-                Navigator.pop(context);
-              } catch (e) {
-                showDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    child: ErrorMsg(
-                      msg: 'שגיאת התנתקות',
-                    ));
-              }
-            },
+            onPressed: signOut,
           ),
         ],
       ),

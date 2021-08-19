@@ -3,7 +3,6 @@ import '../services/firebaseService.dart';
 
 class Meal {
   static Map<String, dynamic> addOns;
-  // static List addOnsKeyNames;
   static List<Meal> meals = [];
 
   String userEmail;
@@ -26,14 +25,6 @@ class Meal {
     return meals == null ? meals = [] : meals;
   }
 
-  // static Future<Map<String, dynamic>> getaddOns() async {
-  //   if (addOns == null) {
-  //     await _initAddons();
-  //     return addOns;
-  //   }
-  //   return addOns;
-  // }
-  //
   static Future<Map<String, dynamic>> initAddons() async {
     Map<String, dynamic> toNewMeal = new Map();
     if (addOns == null || addOns.isEmpty) {
